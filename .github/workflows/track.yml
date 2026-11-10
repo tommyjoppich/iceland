@@ -1,38 +1,45 @@
 name: Track Iceland fares
-
+ 
 on:
   workflow_dispatch:          # started every hour by cron-job.org (see README)
-
+    inputs:
+      full:
+        description: "Search all weekends now (not just the next 10)"
+        type: boolean
+        default: false
+ 
 permissions:
   contents: write             # save prices, report and website
   issues: write               # open an issue (→ email) for deals / new lows
-
+ 
 concurrency:
   group: track
   cancel-in-progress: false
-
+ 
 jobs:
   track:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
+ 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-
+ 
       - name: Install
         run: pip install -r requirements.txt
-
-      - name: Check fares (40 trips, ~2 min)
+ 
+      - name: Check fares
+        env:
+          FULL_RUN: ${{ inputs.full }}
         run: python tracker.py
-
+ 
       - name: Build report and website
         id: report
         run: python analyze.py
-
+ 
       - name: Save results
         run: |
           git config user.name  "flight-bot"
@@ -41,7 +48,7 @@ jobs:
           git diff --cached --quiet || git commit -m "Iceland fares $(date -u +'%Y-%m-%d %H:%M UTC')"
           git pull --rebase --quiet
           git push
-
+ 
       - name: Email alerts
         if: steps.report.outputs.alert == 'true'
         env:
@@ -50,3 +57,4 @@ jobs:
           gh issue create \
             --title "🇮🇸 Iceland fare alert: \$${{ steps.report.outputs.price }} ($(date +'%b %d'))" \
             --body-file alert.md
+ 
