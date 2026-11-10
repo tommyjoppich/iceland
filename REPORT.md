@@ -1,7 +1,7 @@
 # 🇮🇸 United Chicago ⇄ Reykjavik tracker
 
 Leave Wed or Thu, return Sun or Mon (any time) · up to 1 stop · United only · regular Economy · next 10 weekends
-_Updated 2026-11-10 11:46 Chicago time · 2 checks so far_
+_Updated 2026-11-10 12:24 Chicago time · 3 checks so far_
 
 **GOOD PRICE** — Within 3% of the all-time low ($477).
 
@@ -17,7 +17,7 @@ _Updated 2026-11-10 11:46 Chicago time · 2 checks so far_
 |---|---|---|---|---|
 | Nov 11 | — | $2,106 | — | — |
 | Nov 18 | — | $697 | — | — |
-| Nov 25 | — | $1,626 | — | — |
+| Nov 25 | — | — | — | — |
 | Dec 2 | — | $477 | — | — |
 | Dec 9 | — | $477 | — | — |
 | Dec 16 | — | $888 | — | — |
