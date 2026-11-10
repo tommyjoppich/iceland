@@ -69,6 +69,8 @@ def trip_text() -> str:
     for t in config.TRIPS:
         s = f"{t['out']}→{t['back']}"
         extra = []
+        if t.get("leave_after"):
+            extra.append(f"leave after {hour_label(t['leave_after'])}")
         if t.get("leave_before"):
             extra.append(f"leave before {hour_label(t['leave_before'])}")
         if t.get("land_after"):

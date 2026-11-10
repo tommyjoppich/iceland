@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import random
 import sys
 import time
@@ -56,10 +57,11 @@ def upcoming_trips(today: date, until: date | None = None):
 
 def build_query(out: date, back: date, spec: dict):
     from fast_flights import FlightQuery, Passengers, create_query
-    lb, la = spec.get("leave_before"), spec.get("land_after")
+    lb, la, lf = spec.get("leave_before"), spec.get("land_after"), spec.get("leave_after")
     legs = [
         FlightQuery(date=out.isoformat(), from_airport=config.ORIGIN, to_airport=config.DEST,
                     airlines=list(config.AIRLINES),
+                    earliest_departure_hour=lf if lf else None,
                     latest_departure_hour=(lb - 1) if lb else None),
         FlightQuery(date=back.isoformat(), from_airport=config.DEST, to_airport=config.ORIGIN,
                     airlines=list(config.AIRLINES),
@@ -96,7 +98,7 @@ def airline_of(names: list[str]) -> str | None:
 
 
 def split_options(results, spec: dict) -> dict[str, list[dict]]:
-    lb = spec.get("leave_before")
+    lb, lf = spec.get("leave_before"), spec.get("leave_after")
     by = {code: [] for code in config.AIRLINES}
     for f in results or []:
         if not f.flights or not f.price:
@@ -106,6 +108,8 @@ def split_options(results, spec: dict) -> dict[str, list[dict]]:
             continue
         first, last = f.flights[0], f.flights[-1]
         if lb is not None and first.departure.time[0] >= lb:
+            continue
+        if lf is not None and first.departure.time[0] < lf:
             continue
         by[code].append({
             "p": int(f.price), "s": len(f.flights) - 1, "al": code,
@@ -124,7 +128,8 @@ def run(fetcher=fetch, now: datetime | None = None, sleep=time.sleep) -> int:
     trips = upcoming_trips(local.date())
     weeks = sorted({t[0] for t in trips})
     near = set(weeks[:config.HOURLY_WEEKENDS])
-    do_far = local.hour % config.FAR_EVERY_HOURS == 0
+    full = os.environ.get("FULL_RUN", "").lower() == "true"   # "Search all weekends" box
+    do_far = full or local.hour % config.FAR_EVERY_HOURS == 0
     todo = [t for t in trips if t[0] in near or do_far]
     print(f"{len(todo)} of {len(trips)} trips this run "
           f"({'all weekends' if do_far else f'next {config.HOURLY_WEEKENDS} weekends only'})")

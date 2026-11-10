@@ -13,15 +13,16 @@ AIRLINES = {
 }
 
 # Trips to check each week. Days: Mon Tue Wed Thu Fri Sat Sun.
-#   leave_before = outbound must depart ORD before this hour (24h clock)
-#   land_after   = return must land at ORD at/after this hour (24h clock)
+#   leave_after  = outbound must depart ORD at/after this hour (24h clock)
+#   leave_before = outbound must depart ORD before this hour
+#   land_after   = return must land at ORD at/after this hour
 TRIPS = [
     {"out": "Wed", "back": "Sun"},
     {"out": "Wed", "back": "Mon"},
     {"out": "Thu", "back": "Sun"},
     {"out": "Thu", "back": "Mon"},
-    # Friday works only if you can come back Monday night:
-    {"out": "Fri", "back": "Mon", "leave_before": 12, "land_after": 18},
+    # Friday night out, back the following Wednesday (any time):
+    {"out": "Fri", "back": "Wed", "leave_after": 18},
 ]
 
 TRACK_UNTIL = "2027-05-31"   # track every trip departing from now through this date
