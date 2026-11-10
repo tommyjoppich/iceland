@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iceland Fare Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f6f5f2; --surface:#fcfcfb; --surface-2:#f0efeb; --line:#e4e3df;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-3:#8a8984;
+  --s1:#2a78d6; --s2:#eb6834;
+  --seq-0:#e3edf9; --seq-1:#b7d0f0; --seq-2:#7eaae3; --seq-3:#3f84d9; --seq-4:#1d5aa6; --seq-ink:#ffffff;
+  --none:#ecebe7;
+  --good:#0f7b3e; --good-bg:#e3f4ea; --warn:#9a5b00; --warn-bg:#fdf0d9; --neutral-bg:#ecebe7;
+  --up:#52514e;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#121211; --surface:#1a1a19; --surface-2:#232322; --line:#2e2e2c;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8f8e86;
+    --s1:#3987e5; --s2:#d95926;
+    --seq-0:#1f2b3a; --seq-1:#23426b; --seq-2:#2b5d9c; --seq-3:#3987e5; --seq-4:#8bb8f2; --seq-ink:#0b0b0b;
+    --none:#222221;
+    --good:#4cc27e; --good-bg:#16301f; --warn:#f0b24a; --warn-bg:#33270f; --neutral-bg:#262624;
+    --up:#c3c2b7;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121211; --surface:#1a1a19; --surface-2:#232322; --line:#2e2e2c;
+  --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8f8e86;
+  --s1:#3987e5; --s2:#d95926;
+  --seq-0:#1f2b3a; --seq-1:#23426b; --seq-2:#2b5d9c; --seq-3:#3987e5; --seq-4:#8bb8f2; --seq-ink:#0b0b0b;
+  --none:#222221;
+  --good:#4cc27e; --good-bg:#16301f; --warn:#f0b24a; --warn-bg:#33270f; --neutral-bg:#262624;
+  --up:#c3c2b7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 64px}
+header h1{font-size:26px;letter-spacing:-.02em;margin:0 0 4px;font-weight:700}
+header p{margin:0;color:var(--ink-2)}
+.signal{display:flex;gap:14px;align-items:center;border-radius:14px;padding:14px 18px;margin:20px 0 14px;border:1px solid var(--line)}
+.signal .badge{font-weight:700;font-size:13px;letter-spacing:.04em;padding:5px 10px;border-radius:999px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.signal.buy,.signal.good{background:var(--good-bg)} .signal.buy .badge,.signal.good .badge{background:var(--good);color:var(--bg)}
+.signal.wait{background:var(--neutral-bg)} .signal.wait .badge{background:var(--ink-2);color:var(--bg)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 0 20px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat .k{color:var(--ink-3);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.stat .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.stat .s{color:var(--ink-2);font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:20px}
+.card h2{font-size:16px;margin:0 0 4px;font-weight:600}
+.card .sub{color:var(--ink-2);font-size:13px;margin:0 0 14px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--ink-3)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--ink-2);font-size:13px;margin:4px 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px}
+.legend i.dash{height:0;border-top:2px dashed var(--ink-3);width:16px}
+svg text{font-family:inherit}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:800px){.grid2{grid-template-columns:1fr}}
+.note{color:var(--ink-2);font-size:13px;background:var(--surface-2);border-radius:10px;padding:8px 12px;margin:0 0 12px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:12px;color:var(--ink-3);font-weight:500;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.num,td.num{text-align:right}
+td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:hover td{background:var(--surface-2)}
+.muted{color:var(--ink-3)}
+.err{color:var(--warn)}
+.best{font-weight:700}
+/* trip grid */
+.tg{display:grid;gap:6px;min-width:560px}
+.tg .h{color:var(--ink-3);font-size:12px;text-align:center;padding:2px 0}
+.tg .w{color:var(--ink-2);font-size:13px;display:flex;align-items:center;white-space:nowrap}
+.tg button{all:unset;box-sizing:border-box;border-radius:10px;padding:8px 6px;text-align:center;cursor:pointer;border:2px solid transparent;font-variant-numeric:tabular-nums;transition:transform .08s}
+.tg button:hover{transform:scale(1.03);border-color:var(--ink-3)}
+.tg button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tg button.sel{border-color:var(--ink)}
+.tg button b{display:block;font-size:15px}
+.tg button small{display:block;font-size:11px;opacity:.85}
+.tg .x{border-radius:10px;background:var(--none);color:var(--ink-3);font-size:12px;display:flex;align-items:center;justify-content:center;min-height:52px}
+.scale{display:flex;align-items:center;gap:8px;color:var(--ink-2);font-size:12px;margin-top:12px;flex-wrap:wrap}
+.scale i{display:inline-block;width:22px;height:10px;border-radius:3px}
+.heat{display:grid;gap:2px;font-size:11px;min-width:720px}
+.heat .h{color:var(--ink-3);text-align:center;padding:2px 0}
+.heat .n{color:var(--ink-2);padding-right:8px;white-space:nowrap;display:flex;align-items:center}
+.heat .c{border-radius:3px;height:22px}
+.heat .c.miss,.scale i.miss{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.btn{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+.btn:hover{border-color:var(--ink-3)}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.45;max-width:280px;opacity:0;transition:opacity .08s;z-index:10;font-variant-numeric:tabular-nums}
+footer{color:var(--ink-3);font-size:12px;margin-top:24px}
+.empty{color:var(--ink-3);font-size:13px;padding:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Chicago ⇄ Iceland fare tracker</h1>
+    <p id="sub"></p>
+  </header>
+
+  <div class="signal" id="signal"></div>
+  <div class="stats" id="stats"></div>
+
+  <section class="card">
+    <h2>Every trip, right now</h2>
+    <p class="sub">Round-trip price for each weekend and date combo. Tap a trip to see its history and flights below. The % is vs. that trip's own typical price.</p>
+    <div class="tablewrap"><div class="tg" id="grid"></div></div>
+    <div class="scale" id="gridScale"></div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <div><h2>Price over time</h2><p class="sub" id="chartSub"></p></div>
+      <div class="chips" id="range" role="group" aria-label="Time range"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div id="main"></div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <div><h2>United flights for this trip</h2><p class="sub" id="flightsSub"></p></div>
+    </div>
+    <div class="tablewrap"><table id="nowTbl"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Every check, by day and hour</h2>
+    <p class="sub">Each square is one hourly check (Chicago time), colored by the cheapest trip found. Stronger blue = cheaper. Empty squares are hours the bot didn't run.</p>
+    <div class="tablewrap"><div class="heat" id="heat"></div></div>
+    <div class="scale" id="heatleg"></div>
+  </section>
+
+  <section class="card">
+    <h2>When is it cheapest to buy?</h2>
+    <p class="sub">Each fare compared with that same trip's average that day, grouped by when the bot checked. Bars below the line are cheaper.</p>
+    <div id="patternNote"></div>
+    <div class="grid2"><div><div class="legend">By time of day</div><div id="byHour"></div></div>
+    <div><div class="legend">By day of week</div><div id="byDay"></div></div></div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <div><h2>Check log</h2><p class="sub" id="logSub"></p></div>
+      <div class="chips"><button class="btn" id="dl">Download CSV</button></div>
+    </div>
+    <div class="tablewrap"><table id="logTbl"></table></div>
+    <div style="margin-top:12px"><button class="btn" id="more">Show all checks</button></div>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+const $ = s => document.querySelector(s);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money = v => v == null ? "—" : "$" + Math.round(v).toLocaleString();
+const pctTxt = x => { const r = Math.round(x * 100); return r === 0 ? "±0%" : (r < 0 ? "−" : "+") + Math.abs(r) + "%"; };
+const parseT = s => { const [d,t] = s.split(" "); const [y,m,dd] = d.split("-").map(Number); const [h,mi] = t.split(":").map(Number); return new Date(y, m-1, dd, h, mi); };
+const parseD = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const fmtT = d => d.toLocaleString("en-US",{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+const fmtDay = d => d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+const hhmm = s => { if (!s) return "—"; const [h,m] = s.split(":").map(Number); return `${(h%12)||12}:${String(m).padStart(2,"0")} ${h<12?"AM":"PM"}`; };
+const dur = m => `${Math.floor(m/60)}h ${m%60}m`;
+const wkLabel = w => { const a = parseD(w), b = new Date(a); b.setDate(a.getDate()+5);
+  const m = x => x.toLocaleDateString("en-US",{month:"short"});
+  return m(a) === m(b) ? `${m(a)} ${a.getDate()}–${b.getDate()}` : `${m(a)} ${a.getDate()} – ${m(b)} ${b.getDate()}`; };
+
+/* ---------- tooltip ---------- */
+const tip = $("#tip");
+function showTip(e, html){ tip.innerHTML = html; tip.style.opacity = 1; moveTip(e); }
+function moveTip(e){
+  const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8);
+  const y = Math.min(e.clientY + 14, innerHeight - tip.offsetHeight - 8);
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip(){ tip.style.opacity = 0; }
+
+/* ---------- data prep ---------- */
+const checks = (DATA?.checks || []).map((c, i) => ({...c, i, d: parseT(c.t)}));
+const good = checks.filter(c => c.best != null);
+const trips = DATA?.trips || {};
+const keys = Object.keys(trips);
+const priced = keys.filter(k => trips[k].now != null).sort((a,b) => trips[a].now - trips[b].now);
+let sel = priced[0] || keys[0] || null;
+let range = "all";
+
+function inRange(arr){
+  if (range === "all" || !arr.length) return arr;
+  const last = checks[checks.length-1].d.getTime();
+  const span = {"1d":864e5, "1w":7*864e5, "1m":30*864e5}[range];
+  return arr.filter(c => c.d.getTime() >= last - span);
+}
+
+/* ---------- header, signal, stats ---------- */
+function renderTop(){
+  $("#title").textContent = `Chicago ⇄ ${DATA.dest} fare tracker`;
+  $("#sub").textContent = `United · ${DATA.trip} · ${DATA.fare} · updated ${fmtT(parseT(DATA.updated))} (Chicago)`;
+  const s = DATA.signal;
+  $("#signal").className = "signal " + s.level;
+  $("#signal").innerHTML = `<span class="badge"><span aria-hidden="true">${s.level === "wait" ? "◦" : "✓"}</span>${esc(s.label)}</span><span>${esc(s.text)}</span>`;
+  if (!good.length){ $("#stats").innerHTML = ""; return; }
+  const last = good[good.length-1], prev = good.length > 1 ? good[good.length-2] : null;
+  const low = good.reduce((a,b) => b.best < a.best ? b : a);
+  const sorted = good.map(c => c.best).sort((a,b) => a-b), med = sorted[Math.floor(sorted.length/2)];
+  const delta = prev ? last.best - prev.best : 0;
+  const lt = trips[last.key];
+  $("#stats").innerHTML = `
+    <div class="stat"><div class="k">Cheapest trip now</div><div class="v">${money(last.best)}</div><div class="s">${lt ? esc(lt.label) : "—"}</div></div>
+    <div class="stat"><div class="k">Change</div><div class="v" style="color:${delta<0?"var(--good)":"var(--ink)"}">${!prev ? "—" : (delta<0?"−":delta>0?"+":"") + money(Math.abs(delta))}</div><div class="s">since last check</div></div>
+    <div class="stat"><div class="k">All-time low</div><div class="v">${money(low.best)}</div><div class="s">${fmtT(low.d)}</div></div>
+    <div class="stat"><div class="k">Typical cheapest</div><div class="v">${money(med)}</div><div class="s">across ${good.length} checks</div></div>
+    <div class="stat"><div class="k">Target</div><div class="v">${money(DATA.target)}</div><div class="s">${DATA.target == null ? "Not set (config.py)" : last.best <= DATA.target ? "Reached" : money(last.best - DATA.target) + " to go"}</div></div>
+    <div class="stat"><div class="k">Trips tracked</div><div class="v">${priced.length}<span style="font-size:15px;color:var(--ink-3)"> / ${keys.length}</span></div><div class="s">${DATA.weekends.length} weekends · ${checks.length} checks</div></div>`;
+}
+
+/* ---------- trip grid ---------- */
+function bins(values){
+  const v = [...values].sort((a,b)=>a-b); if (!v.length) return [];
+  return [0.2,0.4,0.6,0.8].map(q => v[Math.floor(q*(v.length-1))]);
+}
+function renderGrid(){
+  const C = DATA.combos, W = DATA.weekends;
+  const cuts = bins(priced.map(k => trips[k].now));
+  const lvl = p => { let i = cuts.findIndex(c => p <= c); if (i === -1) i = 4; return 4 - i; };
+  const g = $("#grid");
+  g.style.gridTemplateColumns = `110px repeat(${C.length}, minmax(96px,1fr))`;
+  let html = `<div></div>` + C.map(c => `<div class="h">${esc(c)}</div>`).join("");
+  for (const w of W){
+    html += `<div class="w">${wkLabel(w)}</div>`;
+    for (const c of C){
+      const k = keys.find(k => trips[k].w === w && trips[k].c === c), t = k && trips[k];
+      if (!t){ html += `<div class="x">—</div>`; continue; }
+      if (t.now == null){ html += `<div class="x" title="${esc(t.label)}">${t.status === "none" ? "No United" : "Didn&#39;t load"}</div>`; continue; }
+      const L = lvl(t.now), ink = L >= 3 ? css("--seq-ink") : css("--ink");
+      const vs = t.vs != null && t.n >= 6 ? `<small>${pctTxt(t.vs)} vs usual</small>` : `<small>${t.stops === 0 ? "nonstop" : (t.stops||0) + " stop"}</small>`;
+      html += `<button class="${k===sel?"sel":""}" data-k="${esc(k)}" style="background:var(--seq-${L});color:${ink}" aria-label="${esc(t.label)}: ${money(t.now)}"
+        data-tip="<b>${esc(t.label)}</b><br>Now <b>${money(t.now)}</b>${t.stops===0?" · nonstop":` · ${t.stops} stop`}<br>Typical ${money(t.typical)} · Low ${money(t.low)} · High ${money(t.high)}<br>${t.n} checks"><b>${money(t.now)}</b>${vs}</button>`;
+    }
+  }
+  g.innerHTML = keys.length ? html : `<div class="empty">No trips yet.</div>`;
+  $("#gridScale").innerHTML = cuts.length ? `<span>Cheaper</span>${[4,3,2,1,0].map(i => `<i style="background:var(--seq-${i})"></i>`).join("")}<span>Pricier</span>` : "";
+}
+$("#grid").addEventListener("click", e => { const b = e.target.closest("button[data-k]"); if (!b) return; sel = b.dataset.k; renderGrid(); renderChart(); renderFlights(); });
+$("#grid").addEventListener("mousemove", e => { const c = e.target.closest("[data-tip]"); if (c) showTip(e, c.dataset.tip); else hideTip(); });
+$("#grid").addEventListener("mouseleave", hideTip);
+
+/* ---------- line chart ---------- */
+function niceTicks(lo, hi, n){
+  const span = hi - lo || 1, step0 = span / n, mag = 10 ** Math.floor(Math.log10(step0));
+  const step = [1,2,5,10].map(x => x*mag).find(x => span/x <= n) || mag*10;
+  const out = []; for (let v = Math.ceil(lo/step)*step; v <= hi + 1e-9; v += step) out.push(v);
+  return out;
+}
+function timeTicks(t0, t1, w){
+  const span = t1 - t0, maxN = Math.max(2, Math.floor(w / 90));
+  const opts = [36e5, 3*36e5, 6*36e5, 12*36e5, 864e5, 2*864e5, 7*864e5, 14*864e5, 30*864e5];
+  const step = opts.find(s => span / s <= maxN) || 60*864e5;
+  const start = new Date(t0); start.setMinutes(0,0,0); if (step >= 864e5) start.setHours(0);
+  const out = []; for (let t = start.getTime(); t <= t1; t += step) if (t >= t0) out.push(t);
+  const daily = step >= 864e5;
+  return out.map(t => ({t, l: daily ? new Date(t).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : new Date(t).toLocaleString("en-US",{hour:"numeric"})}));
+}
+function lineChart(el, rows, series, opts = {}){
+  el.innerHTML = "";
+  const W = el.clientWidth || 600, H = opts.h || 300, m = {l:56, r:opts.endLabels?104:16, t:12, b:28};
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const pts = rows.filter(r => series.some(s => r[s.k] != null));
+  if (!pts.length){ el.innerHTML = `<div class="empty">No prices in this range yet.</div>`; return; }
+  const vals = pts.flatMap(r => series.map(s => r[s.k]).filter(v => v != null));
+  const dLo = Math.min(...vals), dHi = Math.max(...vals);
+  const showTarget = opts.target != null && opts.target >= dLo - (dHi - dLo + 40) * 0.6 && opts.target <= dHi * 1.5;
+  if (showTarget) vals.push(opts.target);
+  let lo = Math.min(...vals), hi = Math.max(...vals); const pad = Math.max((hi-lo)*0.12, 10); lo -= pad; hi += pad;
+  const t0 = pts[0].d.getTime(), t1 = pts[pts.length-1].d.getTime();
+  const X = t => m.l + (t1 === t0 ? iw/2 : (t - t0) / (t1 - t0) * iw);
+  const Y = v => m.t + (1 - (v - lo) / (hi - lo)) * ih;
+  const ink3 = css("--ink-3"), line = css("--line");
+  let svg = `<svg width="${W}" height="${H}" role="img" aria-label="Price over time">`;
+  for (const v of niceTicks(lo, hi, 5)) svg += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${line}"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="${ink3}">$${v.toLocaleString()}</text>`;
+  for (const tk of timeTicks(t0, t1, iw)) svg += `<text x="${X(tk.t)}" y="${H-8}" text-anchor="middle" font-size="11" fill="${ink3}">${tk.l}</text>`;
+  if (showTarget) svg += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(opts.target)}" y2="${Y(opts.target)}" stroke="${ink3}" stroke-dasharray="4 4"/><text x="${m.l+4}" y="${Y(opts.target)-5}" font-size="11" fill="${ink3}">Target ${money(opts.target)}</text>`;
+  for (const s of series){
+    let d = "", prev = null;
+    for (const r of pts){
+      const v = r[s.k]; if (v == null) continue;
+      d += `${prev && r.d - prev.d <= 24*36e5 ? "L" : "M"}${X(r.d.getTime()).toFixed(1)},${Y(v).toFixed(1)}`; prev = r;
+    }
+    svg += `<path d="${d}" fill="none" stroke="${css(s.c)}" stroke-width="2" stroke-linejoin="round"/>`;
+    const lp = [...pts].reverse().find(r => r[s.k] != null);
+    if (lp){
+      svg += `<circle cx="${X(lp.d.getTime())}" cy="${Y(lp[s.k])}" r="3.5" fill="${css(s.c)}" stroke="${css("--surface")}" stroke-width="2"/>`;
+      if (opts.endLabels) svg += `<text x="${X(lp.d.getTime())+8}" y="${Y(lp[s.k])+4 + (s.dy||0)}" font-size="11" fill="${css("--ink-2")}">${esc(s.short)} ${money(lp[s.k])}</text>`;
+    }
+  }
+  svg += `<line id="xh" y1="${m.t}" y2="${m.t+ih}" stroke="${ink3}" opacity="0"/><g id="dots"></g><rect x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" id="hit"/></svg>`;
+  el.innerHTML = svg;
+  const root = el.querySelector("svg"), xh = root.querySelector("#xh"), dots = root.querySelector("#dots");
+  root.querySelector("#hit").addEventListener("mousemove", e => {
+    const mx = e.clientX - root.getBoundingClientRect().left;
+    let b = pts[0], bd = Infinity;
+    for (const r of pts){ const dd = Math.abs(X(r.d.getTime()) - mx); if (dd < bd){ bd = dd; b = r; } }
+    const x = X(b.d.getTime());
+    xh.setAttribute("x1", x); xh.setAttribute("x2", x); xh.setAttribute("opacity", 1);
+    dots.innerHTML = series.filter(s => b[s.k] != null).map(s => `<circle cx="${x}" cy="${Y(b[s.k])}" r="4" fill="${css(s.c)}" stroke="${css("--surface")}" stroke-width="2"/>`).join("");
+    showTip(e, `<b>${fmtT(b.d)}</b><br>` + series.map(s => `${esc(s.name)}: <b>${money(b[s.k])}</b>`).join("<br>") + (opts.tipExtra ? opts.tipExtra(b) : ""));
+  });
+  root.querySelector("#hit").addEventListener("mouseleave", () => { xh.setAttribute("opacity", 0); dots.innerHTML = ""; hideTip(); });
+}
+function renderChart(){
+  const t = sel && trips[sel];
+  const selMap = new Map((t?.hist || []).map(([i,p]) => [i,p]));
+  const rows = inRange(checks).map(c => ({...c, sel: selMap.has(c.i) ? selMap.get(c.i) : null}));
+  const series = [{k:"best", name:"Cheapest trip (any dates)", short:"Cheapest", c:"--s1"}];
+  if (t) series.push({k:"sel", name:t.label, short:"Selected", c:"--s2", dy: 12});
+  $("#chartSub").textContent = t ? `Blue: cheapest trip available at each check. Orange: ${t.label}.` : "Cheapest trip available at each check.";
+  $("#legend").innerHTML = series.map(s => `<span><i style="background:var(${s.c})"></i>${esc(s.name)}</span>`).join("") + (DATA.target != null ? `<span><i class="dash"></i>Target ${money(DATA.target)}</span>` : "");
+  lineChart($("#main"), rows, series, {h: 320, target: DATA.target, endLabels: true,
+    tipExtra: r => r.key && trips[r.key] ? `<br><span style="opacity:.75">Cheapest was ${esc(trips[r.key].label)}</span>` : ""});
+}
+function renderRange(){
+  const opts = [["1d","24 hours"],["1w","7 days"],["1m","30 days"],["all","All"]];
+  $("#range").innerHTML = opts.map(([v,l]) => `<button class="chip" data-r="${v}" aria-pressed="${v===range}">${l}</button>`).join("");
+  $("#range").onclick = e => { const b = e.target.closest("[data-r]"); if (!b) return; range = b.dataset.r; renderRange(); renderChart(); };
+}
+
+/* ---------- flights for selected trip ---------- */
+function renderFlights(){
+  const t = sel && trips[sel], rows = (DATA.options || {})[sel] || [];
+  $("#flightsSub").textContent = t ? `${t.label} · round-trip prices at the latest check. Times are the outbound ORD→KEF flight (Google lists return options after you pick one).` : "";
+  $("#nowTbl").innerHTML = `<thead><tr><th>Leaves ORD</th><th>Arrives KEF</th><th>Stops</th><th>Duration</th><th class="num">Round trip</th></tr></thead><tbody>` +
+    (rows.map((r,i) => `<tr><td>${hhmm(r.d)}</td><td>${hhmm(r.a)}${r.a < r.d ? ' <span class="muted">+1</span>' : ""}</td><td>${r.s===0?"Nonstop":`${r.s} stop${r.via?` (${esc(r.via)})`:""}`}</td><td>${dur(r.m)}</td><td class="num ${i===0?"best":""}">${money(r.p)}</td></tr>`).join("")
+     || `<tr><td colspan="5" class="empty">No United flights found for this trip at the latest check.</td></tr>`) + "</tbody>";
+}
+
+/* ---------- heatmap ---------- */
+function renderHeat(){
+  const byDay = new Map();
+  for (const c of checks){
+    const k = c.t.slice(0,10);
+    if (!byDay.has(k)) byDay.set(k, Array.from({length:24}, () => null));
+    const h = c.d.getHours(), cur = byDay.get(k)[h];
+    if (!cur || (c.best != null && (cur.best == null || c.best < cur.best))) byDay.get(k)[h] = c;
+  }
+  const days = [...byDay.keys()].sort().reverse().slice(0, 45);
+  const cuts = bins(good.map(c => c.best));
+  const lvl = v => { let i = cuts.findIndex(c => v <= c); if (i === -1) i = 4; return 4 - i; };
+  const heat = $("#heat");
+  heat.style.gridTemplateColumns = `110px repeat(24, minmax(22px,1fr))`;
+  let html = `<div></div>` + Array.from({length:24}, (_,h) => `<div class="h">${h%3===0 ? ((h%12)||12)+(h<12?"a":"p") : ""}</div>`).join("");
+  for (const k of days){
+    html += `<div class="n">${fmtDay(parseD(k))}</div>`;
+    for (const c of byDay.get(k)){
+      if (!c){ html += `<div class="c miss" data-tip="No check this hour"></div>`; continue; }
+      if (c.best == null){ html += `<div class="c" style="background:var(--none);outline:1px dashed var(--warn);outline-offset:-2px" data-tip="<b>${esc(fmtT(c.d))}</b><br>Check failed: ${esc(c.err||"")}"></div>`; continue; }
+      const t = trips[c.key];
+      html += `<div class="c" style="background:var(--seq-${lvl(c.best)})" data-tip="<b>${esc(fmtT(c.d))}</b><br>Cheapest: <b>${money(c.best)}</b>${t ? "<br>" + esc(t.label) : ""}<br>${c.n} of ${c.tot} trips priced"></div>`;
+    }
+  }
+  heat.innerHTML = days.length ? html : `<div class="empty">No checks yet.</div>`;
+  $("#heatleg").innerHTML = cuts.length ? `<span>Cheaper</span>${[4,3,2,1,0].map(i => `<i style="background:var(--seq-${i})"></i>`).join("")}<span>Pricier</span><span style="margin-left:12px"><i class="miss"></i> no check</span><span><i style="background:var(--none);outline:1px dashed var(--warn);outline-offset:-2px"></i> failed</span>` : "";
+}
+$("#heat").addEventListener("mousemove", e => { const c = e.target.closest("[data-tip]"); if (c) showTip(e, c.dataset.tip); else hideTip(); });
+$("#heat").addEventListener("mouseleave", hideTip);
+
+/* ---------- pattern bars ---------- */
+function barChart(el, rows, label){
+  el.innerHTML = "";
+  if (rows.length < 2){ el.innerHTML = `<div class="empty">Not enough data yet.</div>`; return; }
+  const W = el.clientWidth || 500, H = 220, m = {l:44, r:8, t:16, b:26};
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const ext = Math.max(5, ...rows.map(r => Math.abs(r.v))) * 1.15;
+  const Y = v => m.t + (1 - (v + ext) / (2*ext)) * ih;
+  const bw = iw / rows.length, gapPx = Math.min(4, bw*0.25), minV = Math.min(...rows.map(r => r.v));
+  let svg = `<svg width="${W}" height="${H}" role="img" aria-label="${esc(label)}">`;
+  for (const v of niceTicks(-ext, ext, 4)) svg += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${css("--line")}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="${css("--ink-3")}">${v<0?"−":v>0?"+":""}$${Math.abs(v)}</text>`;
+  const every = Math.ceil(rows.length / Math.max(1, Math.floor(iw/40)));
+  rows.forEach((r, i) => {
+    const x = m.l + i*bw + gapPx/2, y0 = Y(0), y1 = Y(r.v), h = Math.max(1, Math.abs(y1 - y0));
+    const col = r.v === minV ? css("--seq-4") : r.v < 0 ? css("--seq-2") : css("--seq-0");
+    svg += `<rect x="${x}" y="${Math.min(y0,y1)}" width="${bw-gapPx}" height="${h}" rx="${Math.min(4,(bw-gapPx)/2,h)}" fill="${col}"/>`;
+    svg += `<rect x="${m.l + i*bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent" data-tip="<b>${esc(r.k)}</b><br>${r.v<0?"−":"+"}${money(Math.abs(r.v))} vs that trip's daily average<br>${r.n} checks"/>`;
+    if (i % every === 0) svg += `<text x="${x + (bw-gapPx)/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="${css("--ink-3")}">${esc(r.k)}</text>`;
+    if (r.v === minV && r.v < -0.5) svg += `<text x="${x + (bw-gapPx)/2}" y="${Math.max(y0,y1)+13}" text-anchor="middle" font-size="11" font-weight="600" fill="${css("--ink")}">−$${Math.abs(Math.round(r.v))}</text>`;
+  });
+  svg += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="${css("--ink-2")}"/></svg>`;
+  el.innerHTML = svg;
+  el.onmousemove = e => { const c = e.target.closest("[data-tip]"); if (c) showTip(e, c.dataset.tip); else hideTip(); };
+  el.onmouseleave = hideTip;
+}
+function renderPatterns(){
+  $("#patternNote").innerHTML = DATA.patterns_ready ? "" :
+    `<p class="note">Only ${DATA.days_tracked} day${DATA.days_tracked===1?"":"s"} of data so far. These patterns become meaningful after about ${DATA.min_days} days.</p>`;
+  barChart($("#byHour"), DATA.by_hour, "Price by hour of day");
+  barChart($("#byDay"), DATA.by_day, "Price by day of week");
+}
+
+/* ---------- check log ---------- */
+let showAll = false;
+function renderLog(){
+  const first = checks[0]?.d, last = checks[checks.length-1]?.d;
+  const hours = first ? Math.round((last - first) / 36e5) + 1 : 0;
+  $("#logSub").textContent = first ? `${checks.length} checks since ${fmtT(first)} · ${checks.length - good.length} failed · ${Math.max(0, hours - checks.length)} hours missed` : "No checks yet.";
+  const rows = [...checks].reverse(), shown = showAll ? rows : rows.slice(0, 48);
+  $("#logTbl").innerHTML = `<thead><tr><th>Checked (Chicago)</th><th class="num">Cheapest</th><th>Trip</th><th class="num">Trips priced</th><th>Status</th></tr></thead><tbody>` +
+    shown.map((c, i) => {
+      const prev = rows[i+1], ch = prev && prev.best != null && c.best != null ? c.best - prev.best : 0;
+      return `<tr><td>${fmtT(c.d)}</td><td class="num best">${money(c.best)}${ch ? ` <span style="font-weight:500;color:${ch<0?"var(--good)":"var(--up)"}">${ch<0?"▼":"▲"}${Math.abs(ch)}</span>` : ""}</td>
+      <td>${c.key && trips[c.key] ? esc(trips[c.key].label) : `<span class="muted">${c.key ? esc(c.key.replace("|"," → ")) : "—"}</span>`}</td><td class="num">${c.n} / ${c.tot}</td>
+      <td>${c.best == null ? `<span class="err">Failed</span>` : c.err ? `<span class="muted">Partial</span>` : "OK"}</td></tr>`;
+    }).join("") + "</tbody>";
+  $("#more").hidden = rows.length <= 48;
+  $("#more").textContent = showAll ? "Show fewer" : `Show all ${rows.length} checks`;
+}
+$("#more").onclick = () => { showAll = !showAll; renderLog(); };
+$("#dl").onclick = () => {
+  let out = "checked_at_chicago,trip_out,trip_back,price\n";
+  for (const k of keys) for (const [i,p] of trips[k].hist) out += `${checks[i]?.t ?? ""},${trips[k].out},${trips[k].back},${p}\n`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([out], {type:"text/csv"}));
+  a.download = "iceland-fares.csv"; a.click();
+};
+
+/* ---------- boot ---------- */
+function renderAll(){ renderTop(); renderGrid(); renderRange(); renderChart(); renderFlights(); renderHeat(); renderPatterns(); renderLog(); }
+if (!DATA){
+  document.querySelector(".wrap").innerHTML = "<h1>No data yet</h1><p>The first check hasn't finished. Come back after the bot runs.</p>";
+} else {
+  renderAll();
+  $("#foot").textContent = "Prices from Google Flights for United regular Economy round trips. Confirm in Chase Travel before booking.";
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { renderChart(); renderPatterns(); }, 150); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+}
+</script>
+</body>
+</html>
