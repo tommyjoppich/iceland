@@ -101,7 +101,17 @@ tr:hover td{background:var(--surface-2)}
 #tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.45;max-width:280px;opacity:0;transition:opacity .08s;z-index:10;font-variant-numeric:tabular-nums}
 footer{color:var(--ink-3);font-size:12px;margin-top:24px}
 .empty{color:var(--ink-3);font-size:13px;padding:20px 0}
+
+/* airline labels */
+.filterbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 0}
+.chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.al{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);white-space:nowrap}
+.al-UA{box-shadow:inset 3px 0 0 var(--s1)}
+.al-FI{box-shadow:inset 3px 0 0 var(--s2)}
+.tg button .aln{display:block;font-size:12px;font-weight:600;letter-spacing:.01em}
+.tg .mo{color:var(--ink-3);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:10px 0 0}
 </style>
+
 </head>
 <body>
 <div class="wrap">
@@ -110,19 +120,24 @@ footer{color:var(--ink-3);font-size:12px;margin-top:24px}
     <p id="sub"></p>
   </header>
 
+  <div class="filterbar">
+    <span class="muted">Show fares on</span>
+    <div class="chips" id="alFilter" role="group" aria-label="Airline"></div>
+  </div>
+
   <div class="signal" id="signal"></div>
   <div class="stats" id="stats"></div>
 
   <section class="card">
     <h2>Every trip, right now</h2>
-    <p class="sub">Round-trip price for each weekend and date combo. Tap a trip to see its history and flights below. The % is vs. that trip's own typical price.</p>
+    <p class="sub" id="gridSub"></p>
     <div class="tablewrap"><div class="tg" id="grid"></div></div>
     <div class="scale" id="gridScale"></div>
   </section>
 
   <section class="card">
     <div class="row">
-      <div><h2>Price over time</h2><p class="sub" id="chartSub"></p></div>
+      <div><h2 id="chartTitle">Price over time</h2><p class="sub" id="chartSub"></p></div>
       <div class="chips" id="range" role="group" aria-label="Time range"></div>
     </div>
     <div class="legend" id="legend"></div>
@@ -130,22 +145,21 @@ footer{color:var(--ink-3);font-size:12px;margin-top:24px}
   </section>
 
   <section class="card">
-    <div class="row">
-      <div><h2>United flights for this trip</h2><p class="sub" id="flightsSub"></p></div>
-    </div>
+    <h2>Flights for this trip</h2>
+    <p class="sub" id="flightsSub"></p>
     <div class="tablewrap"><table id="nowTbl"></table></div>
   </section>
 
   <section class="card">
     <h2>Every check, by day and hour</h2>
-    <p class="sub">Each square is one hourly check (Chicago time), colored by the cheapest trip found. Stronger blue = cheaper. Empty squares are hours the bot didn't run.</p>
+    <p class="sub">Each square is one hourly check (Chicago time), colored by the cheapest trip found for the airline filter above. Stronger blue = cheaper. Empty squares are hours the bot didn't run.</p>
     <div class="tablewrap"><div class="heat" id="heat"></div></div>
     <div class="scale" id="heatleg"></div>
   </section>
 
   <section class="card">
     <h2>When is it cheapest to buy?</h2>
-    <p class="sub">Each fare compared with that same trip's average that day, grouped by when the bot checked. Bars below the line are cheaper.</p>
+    <p class="sub">Each fare compared with the same trip and airline's average that day (or week), grouped by when the bot checked. Bars below the line are cheaper. Both airlines combined.</p>
     <div id="patternNote"></div>
     <div class="grid2"><div><div class="legend">By time of day</div><div id="byHour"></div></div>
     <div><div class="legend">By day of week</div><div id="byDay"></div></div></div>
@@ -178,9 +192,15 @@ const fmtT = d => d.toLocaleString("en-US",{weekday:"short",month:"short",day:"n
 const fmtDay = d => d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
 const hhmm = s => { if (!s) return "—"; const [h,m] = s.split(":").map(Number); return `${(h%12)||12}:${String(m).padStart(2,"0")} ${h<12?"AM":"PM"}`; };
 const dur = m => `${Math.floor(m/60)}h ${m%60}m`;
+const stopsTxt = s => s == null ? "" : s === 0 ? "nonstop" : `${s} stop`;
 const wkLabel = w => { const a = parseD(w), b = new Date(a); b.setDate(a.getDate()+5);
   const m = x => x.toLocaleDateString("en-US",{month:"short"});
   return m(a) === m(b) ? `${m(a)} ${a.getDate()}–${b.getDate()}` : `${m(a)} ${a.getDate()} – ${m(b)} ${b.getDate()}`; };
+
+const AL = DATA?.airlines || {};
+const CODES = Object.keys(AL);
+const AL_COLOR = {[CODES[0]]: "--s1", [CODES[1]]: "--s2"};
+const alTag = code => `<span class="al al-${esc(code)}">${esc(AL[code] || code)}</span>`;
 
 /* ---------- tooltip ---------- */
 const tip = $("#tip");
@@ -192,14 +212,24 @@ function moveTip(e){
 }
 function hideTip(){ tip.style.opacity = 0; }
 
-/* ---------- data prep ---------- */
+/* ---------- state ---------- */
 const checks = (DATA?.checks || []).map((c, i) => ({...c, i, d: parseT(c.t)}));
-const good = checks.filter(c => c.best != null);
 const trips = DATA?.trips || {};
 const keys = Object.keys(trips);
-const priced = keys.filter(k => trips[k].now != null).sort((a,b) => trips[a].now - trips[b].now);
-let sel = priced[0] || keys[0] || null;
+let filter = "all";          // "all" or an airline code
 let range = "all";
+
+/* the fare to show for a trip under the current filter */
+function fare(t){
+  const codes = filter === "all" ? CODES : [filter];
+  let best = null;
+  for (const c of codes){ const e = t.a[c]; if (e && e.now != null && (!best || e.now < best.now)) best = {...e, al: c}; }
+  return best;
+}
+function checkBest(c){ return filter === "all" ? c.best : c[filter.toLowerCase()]; }
+const goodChecks = () => checks.filter(c => checkBest(c) != null);
+const pricedKeys = () => keys.filter(k => fare(trips[k])).sort((a,b) => fare(trips[a]).now - fare(trips[b]).now);
+let sel = null;
 
 function inRange(arr){
   if (range === "all" || !arr.length) return arr;
@@ -208,26 +238,40 @@ function inRange(arr){
   return arr.filter(c => c.d.getTime() >= last - span);
 }
 
+/* ---------- airline filter ---------- */
+function renderFilter(){
+  const opts = [["all", "Both airlines"], ...CODES.map(c => [c, `${AL[c]} only`])];
+  $("#alFilter").innerHTML = opts.map(([v,l]) => `<button class="chip" data-f="${v}" aria-pressed="${v===filter}">${v === "all" ? "" : `<i class="dot" style="background:var(${AL_COLOR[v]})"></i>`}${esc(l)}</button>`).join("");
+}
+$("#alFilter").addEventListener("click", e => {
+  const b = e.target.closest("[data-f]"); if (!b) return;
+  filter = b.dataset.f;
+  if (sel && !fare(trips[sel])) sel = pricedKeys()[0] || sel;
+  renderAll();
+});
+
 /* ---------- header, signal, stats ---------- */
 function renderTop(){
   $("#title").textContent = `Chicago ⇄ ${DATA.dest} fare tracker`;
-  $("#sub").textContent = `United · ${DATA.trip} · ${DATA.fare} · updated ${fmtT(parseT(DATA.updated))} (Chicago)`;
+  $("#sub").textContent = `${Object.values(AL).join(" & ")} · ${DATA.trip} · ${DATA.fare} · updated ${fmtT(parseT(DATA.updated))} (Chicago)`;
   const s = DATA.signal;
   $("#signal").className = "signal " + s.level;
   $("#signal").innerHTML = `<span class="badge"><span aria-hidden="true">${s.level === "wait" ? "◦" : "✓"}</span>${esc(s.label)}</span><span>${esc(s.text)}</span>`;
-  if (!good.length){ $("#stats").innerHTML = ""; return; }
+  const good = goodChecks();
+  if (!good.length){ $("#stats").innerHTML = `<div class="stat"><div class="k">No prices yet</div><div class="s">for ${filter === "all" ? "either airline" : esc(AL[filter])}</div></div>`; return; }
   const last = good[good.length-1], prev = good.length > 1 ? good[good.length-2] : null;
-  const low = good.reduce((a,b) => b.best < a.best ? b : a);
-  const sorted = good.map(c => c.best).sort((a,b) => a-b), med = sorted[Math.floor(sorted.length/2)];
-  const delta = prev ? last.best - prev.best : 0;
-  const lt = trips[last.key];
+  const lb = checkBest(last), pb = prev ? checkBest(prev) : null;
+  const low = good.reduce((a,b) => checkBest(b) < checkBest(a) ? b : a);
+  const sorted = good.map(checkBest).sort((a,b) => a-b), med = sorted[Math.floor(sorted.length/2)];
+  const delta = prev ? lb - pb : 0;
+  const pk = pricedKeys(), top = pk[0] ? {t: trips[pk[0]], f: fare(trips[pk[0]])} : null;
   $("#stats").innerHTML = `
-    <div class="stat"><div class="k">Cheapest trip now</div><div class="v">${money(last.best)}</div><div class="s">${lt ? esc(lt.label) : "—"}</div></div>
+    <div class="stat"><div class="k">Cheapest trip now</div><div class="v">${money(top ? top.f.now : lb)}</div><div class="s">${top ? `${esc(top.t.label)}<br>${alTag(top.f.al)}` : "—"}</div></div>
     <div class="stat"><div class="k">Change</div><div class="v" style="color:${delta<0?"var(--good)":"var(--ink)"}">${!prev ? "—" : (delta<0?"−":delta>0?"+":"") + money(Math.abs(delta))}</div><div class="s">since last check</div></div>
-    <div class="stat"><div class="k">All-time low</div><div class="v">${money(low.best)}</div><div class="s">${fmtT(low.d)}</div></div>
+    <div class="stat"><div class="k">All-time low</div><div class="v">${money(checkBest(low))}</div><div class="s">${fmtT(low.d)}${filter === "all" && low.al ? "<br>" + alTag(low.al) : ""}</div></div>
     <div class="stat"><div class="k">Typical cheapest</div><div class="v">${money(med)}</div><div class="s">across ${good.length} checks</div></div>
-    <div class="stat"><div class="k">Target</div><div class="v">${money(DATA.target)}</div><div class="s">${DATA.target == null ? "Not set (config.py)" : last.best <= DATA.target ? "Reached" : money(last.best - DATA.target) + " to go"}</div></div>
-    <div class="stat"><div class="k">Trips tracked</div><div class="v">${priced.length}<span style="font-size:15px;color:var(--ink-3)"> / ${keys.length}</span></div><div class="s">${DATA.weekends.length} weekends · ${checks.length} checks</div></div>`;
+    <div class="stat"><div class="k">Target</div><div class="v">${money(DATA.target)}</div><div class="s">${DATA.target == null ? "Not set (config.py)" : lb <= DATA.target ? "Reached" : money(lb - DATA.target) + " to go"}</div></div>
+    <div class="stat"><div class="k">Trips with a fare</div><div class="v">${pk.length}<span style="font-size:15px;color:var(--ink-3)"> / ${keys.length}</span></div><div class="s">${DATA.weekends.length} weekends · ${checks.length} checks</div></div>`;
 }
 
 /* ---------- trip grid ---------- */
@@ -235,27 +279,51 @@ function bins(values){
   const v = [...values].sort((a,b)=>a-b); if (!v.length) return [];
   return [0.2,0.4,0.6,0.8].map(q => v[Math.floor(q*(v.length-1))]);
 }
+function cellTip(t){
+  let h = `<b>${esc(t.label)}</b>`;
+  for (const c of CODES){
+    const e = t.a[c];
+    h += `<br>${esc(AL[c])}: `;
+    if (!e || e.status === "pending") h += `<span style="opacity:.75">not checked yet</span>`;
+    else if (e.now != null) h += `<b>${money(e.now)}</b> ${stopsTxt(e.stops)}${e.typical ? ` <span style="opacity:.75">(usual ${money(e.typical)})</span>` : ""}`;
+    else if (e.status === "error") h += `<span style="opacity:.75">search failed: ${esc(e.err || "")}</span>`;
+    else h += `<span style="opacity:.75">no flights (≤1 stop) on these dates</span>`;
+  }
+  const lastChecked = CODES.map(c => t.a[c]?.checked).filter(Boolean).sort().pop();
+  if (lastChecked) h += `<br><span style="opacity:.75">Checked ${esc(fmtT(parseT(lastChecked)))}</span>`;
+  return h;
+}
 function renderGrid(){
-  const C = DATA.combos, W = DATA.weekends;
-  const cuts = bins(priced.map(k => trips[k].now));
+  const C = DATA.combos, W = DATA.weekends, pk = pricedKeys();
+  if (!sel || !trips[sel]) sel = pk[0] || keys[0] || null;
+  $("#gridSub").innerHTML = `Round-trip price for each weekend and date combo${filter === "all" ? ", showing whichever airline is cheaper — the airline is named in every box" : ` on ${esc(AL[filter])}`}. Tap a trip for its history and flights. The next ${DATA.hourly_weekends} weekends are checked hourly, later ones every ${DATA.far_every} hours.`;
+  const cuts = bins(pk.map(k => fare(trips[k]).now));
   const lvl = p => { let i = cuts.findIndex(c => p <= c); if (i === -1) i = 4; return 4 - i; };
   const g = $("#grid");
-  g.style.gridTemplateColumns = `110px repeat(${C.length}, minmax(96px,1fr))`;
+  g.style.gridTemplateColumns = `110px repeat(${C.length}, minmax(104px,1fr))`;
   let html = `<div></div>` + C.map(c => `<div class="h">${esc(c)}</div>`).join("");
+  let lastMonth = null;
   for (const w of W){
+    const mo = parseD(w).toLocaleDateString("en-US",{month:"long", year:"numeric"});
+    if (mo !== lastMonth){ html += `<div class="mo" style="grid-column:1 / -1">${mo}</div>`; lastMonth = mo; }
     html += `<div class="w">${wkLabel(w)}</div>`;
     for (const c of C){
       const k = keys.find(k => trips[k].w === w && trips[k].c === c), t = k && trips[k];
       if (!t){ html += `<div class="x">—</div>`; continue; }
-      if (t.now == null){ html += `<div class="x" data-tip="<b>${esc(t.label)}</b><br>${t.status === "none" ? "Google shows no United flights for these dates (with ≤1 stop)." : "Search failed: " + esc(t.err || "unknown error")}">${t.status === "none" ? "No United" : "Didn&#39;t load"}</div>`; continue; }
-      const L = lvl(t.now), ink = L >= 3 ? css("--seq-ink") : css("--ink");
-      const vs = t.vs != null && t.n >= 6 ? `<small>${pctTxt(t.vs)} vs usual</small>` : `<small>${t.stops === 0 ? "nonstop" : (t.stops||0) + " stop"}</small>`;
-      html += `<button class="${k===sel?"sel":""}" data-k="${esc(k)}" style="background:var(--seq-${L});color:${ink}" aria-label="${esc(t.label)}: ${money(t.now)}"
-        data-tip="<b>${esc(t.label)}</b><br>Now <b>${money(t.now)}</b>${t.stops===0?" · nonstop":` · ${t.stops} stop`}<br>Typical ${money(t.typical)} · Low ${money(t.low)} · High ${money(t.high)}<br>${t.n} checks"><b>${money(t.now)}</b>${vs}</button>`;
+      const f = fare(t);
+      if (!f){
+        const es = (filter === "all" ? CODES : [filter]).map(c => t.a[c]?.status);
+        const label = es.every(s => s === "pending") ? "Not checked yet" : es.some(s => s === "error") && !es.includes("none") ? "Didn't load" : "No flights";
+        html += `<div class="x" data-tip="${esc(cellTip(t))}">${label}</div>`; continue;
+      }
+      const L = lvl(f.now), ink = L >= 3 ? css("--seq-ink") : css("--ink");
+      const vs = f.vs != null && f.n >= 6 ? ` · ${pctTxt(f.vs)}` : "";
+      html += `<button class="${k===sel?"sel":""}" data-k="${esc(k)}" style="background:var(--seq-${L});color:${ink}" aria-label="${esc(t.label)}: ${money(f.now)} on ${esc(AL[f.al])}"
+        data-tip="${esc(cellTip(t))}"><b>${money(f.now)}</b><span class="aln">${esc(AL[f.al])}</span><small>${stopsTxt(f.stops)}${vs}</small></button>`;
     }
   }
   g.innerHTML = keys.length ? html : `<div class="empty">No trips yet.</div>`;
-  $("#gridScale").innerHTML = cuts.length ? `<span>Cheaper</span>${[4,3,2,1,0].map(i => `<i style="background:var(--seq-${i})"></i>`).join("")}<span>Pricier</span>` : "";
+  $("#gridScale").innerHTML = cuts.length ? `<span>Cheaper</span>${[4,3,2,1,0].map(i => `<i style="background:var(--seq-${i})"></i>`).join("")}<span>Pricier</span><span style="margin-left:12px">% = vs. that trip's usual price on that airline</span>` : "";
 }
 $("#grid").addEventListener("click", e => { const b = e.target.closest("button[data-k]"); if (!b) return; sel = b.dataset.k; renderGrid(); renderChart(); renderFlights(); });
 $("#grid").addEventListener("mousemove", e => { const c = e.target.closest("[data-tip]"); if (c) showTip(e, c.dataset.tip); else hideTip(); });
@@ -279,7 +347,7 @@ function timeTicks(t0, t1, w){
 }
 function lineChart(el, rows, series, opts = {}){
   el.innerHTML = "";
-  const W = el.clientWidth || 600, H = opts.h || 300, m = {l:56, r:opts.endLabels?104:16, t:12, b:28};
+  const W = el.clientWidth || 600, H = opts.h || 300, m = {l:56, r:opts.endLabels?118:16, t:12, b:28};
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const pts = rows.filter(r => series.some(s => r[s.k] != null));
   if (!pts.length){ el.innerHTML = `<div class="empty">No prices in this range yet.</div>`; return; }
@@ -296,17 +364,22 @@ function lineChart(el, rows, series, opts = {}){
   for (const v of niceTicks(lo, hi, 5)) svg += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${line}"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="${ink3}">$${v.toLocaleString()}</text>`;
   for (const tk of timeTicks(t0, t1, iw)) svg += `<text x="${X(tk.t)}" y="${H-8}" text-anchor="middle" font-size="11" fill="${ink3}">${tk.l}</text>`;
   if (showTarget) svg += `<line x1="${m.l}" x2="${W-m.r}" y1="${Y(opts.target)}" y2="${Y(opts.target)}" stroke="${ink3}" stroke-dasharray="4 4"/><text x="${m.l+4}" y="${Y(opts.target)-5}" font-size="11" fill="${ink3}">Target ${money(opts.target)}</text>`;
+  const labelYs = [];
   for (const s of series){
     let d = "", prev = null;
     for (const r of pts){
       const v = r[s.k]; if (v == null) continue;
-      d += `${prev && r.d - prev.d <= 24*36e5 ? "L" : "M"}${X(r.d.getTime()).toFixed(1)},${Y(v).toFixed(1)}`; prev = r;
+      d += `${prev && r.d - prev.d <= 3*864e5 ? "L" : "M"}${X(r.d.getTime()).toFixed(1)},${Y(v).toFixed(1)}`; prev = r;
     }
-    svg += `<path d="${d}" fill="none" stroke="${css(s.c)}" stroke-width="2" stroke-linejoin="round"/>`;
+    svg += `<path d="${d}" fill="none" stroke="${s.c.startsWith("--") ? css(s.c) : s.c}" stroke-width="${s.w||2}" ${s.dash ? `stroke-dasharray="${s.dash}"` : ""} stroke-linejoin="round"/>`;
     const lp = [...pts].reverse().find(r => r[s.k] != null);
     if (lp){
-      svg += `<circle cx="${X(lp.d.getTime())}" cy="${Y(lp[s.k])}" r="3.5" fill="${css(s.c)}" stroke="${css("--surface")}" stroke-width="2"/>`;
-      if (opts.endLabels) svg += `<text x="${X(lp.d.getTime())+8}" y="${Y(lp[s.k])+4 + (s.dy||0)}" font-size="11" fill="${css("--ink-2")}">${esc(s.short)} ${money(lp[s.k])}</text>`;
+      const col = s.c.startsWith("--") ? css(s.c) : s.c;
+      svg += `<circle cx="${X(lp.d.getTime())}" cy="${Y(lp[s.k])}" r="3.5" fill="${col}" stroke="${css("--surface")}" stroke-width="2"/>`;
+      if (opts.endLabels){
+        let ly = Y(lp[s.k]) + 4; while (labelYs.some(y => Math.abs(y - ly) < 13)) ly += 13; labelYs.push(ly);
+        svg += `<text x="${X(lp.d.getTime())+8}" y="${ly}" font-size="11" fill="${css("--ink-2")}">${esc(s.short)} ${money(lp[s.k])}</text>`;
+      }
     }
   }
   svg += `<line id="xh" y1="${m.t}" y2="${m.t+ih}" stroke="${ink3}" opacity="0"/><g id="dots"></g><rect x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" id="hit"/></svg>`;
@@ -318,21 +391,27 @@ function lineChart(el, rows, series, opts = {}){
     for (const r of pts){ const dd = Math.abs(X(r.d.getTime()) - mx); if (dd < bd){ bd = dd; b = r; } }
     const x = X(b.d.getTime());
     xh.setAttribute("x1", x); xh.setAttribute("x2", x); xh.setAttribute("opacity", 1);
-    dots.innerHTML = series.filter(s => b[s.k] != null).map(s => `<circle cx="${x}" cy="${Y(b[s.k])}" r="4" fill="${css(s.c)}" stroke="${css("--surface")}" stroke-width="2"/>`).join("");
+    dots.innerHTML = series.filter(s => b[s.k] != null).map(s => `<circle cx="${x}" cy="${Y(b[s.k])}" r="4" fill="${s.c.startsWith("--") ? css(s.c) : s.c}" stroke="${css("--surface")}" stroke-width="2"/>`).join("");
     showTip(e, `<b>${fmtT(b.d)}</b><br>` + series.map(s => `${esc(s.name)}: <b>${money(b[s.k])}</b>`).join("<br>") + (opts.tipExtra ? opts.tipExtra(b) : ""));
   });
   root.querySelector("#hit").addEventListener("mouseleave", () => { xh.setAttribute("opacity", 0); dots.innerHTML = ""; hideTip(); });
 }
 function renderChart(){
   const t = sel && trips[sel];
-  const selMap = new Map((t?.hist || []).map(([i,p]) => [i,p]));
-  const rows = inRange(checks).map(c => ({...c, sel: selMap.has(c.i) ? selMap.get(c.i) : null}));
-  const series = [{k:"best", name:"Cheapest trip (any dates)", short:"Cheapest", c:"--s1"}];
-  if (t) series.push({k:"sel", name:t.label, short:"Selected", c:"--s2", dy: 12});
-  $("#chartSub").textContent = t ? `Blue: cheapest trip available at each check. Orange: ${t.label}.` : "Cheapest trip available at each check.";
-  $("#legend").innerHTML = series.map(s => `<span><i style="background:var(${s.c})"></i>${esc(s.name)}</span>`).join("") + (DATA.target != null ? `<span><i class="dash"></i>Target ${money(DATA.target)}</span>` : "");
+  const codes = filter === "all" ? CODES : [filter];
+  const maps = Object.fromEntries(codes.map(c => [c, new Map((t?.a[c]?.hist || []).map(([i,p]) => [i,p]))]));
+  const rows = inRange(checks).map(c => {
+    const r = {...c, any: checkBest(c)};
+    for (const code of codes) r["t_" + code] = maps[code].has(c.i) ? maps[code].get(c.i) : null;
+    return r;
+  });
+  const series = codes.filter(c => (t?.a[c]?.hist || []).length).map(c => ({k: "t_" + c, name: `${AL[c]} — this trip`, short: AL[c], c: AL_COLOR[c]}));
+  series.push({k: "any", name: `Cheapest of all trips${filter === "all" ? "" : ` (${AL[filter]})`}`, short: "Cheapest trip", c: css("--ink-3"), w: 1.5, dash: "4 3"});
+  $("#chartTitle").textContent = t ? `Price over time — ${t.label}` : "Price over time";
+  $("#chartSub").textContent = t ? `This trip on each airline, plus the cheapest of all trips (dashed) for comparison. Older days show each day's low.` : "Tap a trip in the grid above.";
+  $("#legend").innerHTML = series.map(s => `<span><i style="background:${s.c.startsWith("--") ? `var(${s.c})` : s.c}${s.dash ? ";height:0;border-top:2px dashed " + s.c + ";background:none" : ""}"></i>${esc(s.name)}</span>`).join("") + (DATA.target != null ? `<span><i class="dash"></i>Target ${money(DATA.target)}</span>` : "");
   lineChart($("#main"), rows, series, {h: 320, target: DATA.target, endLabels: true,
-    tipExtra: r => r.key && trips[r.key] ? `<br><span style="opacity:.75">Cheapest was ${esc(trips[r.key].label)}</span>` : ""});
+    tipExtra: r => r.key && trips[r.key] && filter === "all" ? `<br><span style="opacity:.75">Cheapest trip then: ${esc(trips[r.key].label)} on ${esc(AL[r.al] || "")}</span>` : ""});
 }
 function renderRange(){
   const opts = [["1d","24 hours"],["1w","7 days"],["1m","30 days"],["all","All"]];
@@ -342,24 +421,25 @@ function renderRange(){
 
 /* ---------- flights for selected trip ---------- */
 function renderFlights(){
-  const t = sel && trips[sel], rows = (DATA.options || {})[sel] || [];
-  $("#flightsSub").textContent = t ? `${t.label} · round-trip prices at the latest check. Times are the outbound ORD→KEF flight (Google lists return options after you pick one).` : "";
-  $("#nowTbl").innerHTML = `<thead><tr><th>Leaves ORD</th><th>Arrives KEF</th><th>Stops</th><th>Duration</th><th class="num">Round trip</th></tr></thead><tbody>` +
-    (rows.map((r,i) => `<tr><td>${hhmm(r.d)}</td><td>${hhmm(r.a)}${r.a < r.d ? ' <span class="muted">+1</span>' : ""}</td><td>${r.s===0?"Nonstop":`${r.s} stop${r.via?` (${esc(r.via)})`:""}`}</td><td>${dur(r.m)}</td><td class="num ${i===0?"best":""}">${money(r.p)}</td></tr>`).join("")
-     || `<tr><td colspan="5" class="empty">No United flights found for this trip at the latest check.</td></tr>`) + "</tbody>";
+  const t = sel && trips[sel];
+  const rows = ((DATA.options || {})[sel] || []).filter(r => filter === "all" || r.al === filter).sort((a,b) => a.p - b.p);
+  $("#flightsSub").textContent = t ? `${t.label} · round-trip prices from the latest check of this trip. Times are the outbound ORD→KEF flight (Google shows return options only after you pick one).` : "";
+  $("#nowTbl").innerHTML = `<thead><tr><th>Airline</th><th>Leaves ORD</th><th>Arrives KEF</th><th>Stops</th><th>Duration</th><th class="num">Round trip</th></tr></thead><tbody>` +
+    (rows.map((r,i) => `<tr><td>${alTag(r.al)}</td><td>${hhmm(r.d)}</td><td>${hhmm(r.a)}${r.a < r.d ? ' <span class="muted">+1</span>' : ""}</td><td>${r.s===0?"Nonstop":`${r.s} stop${r.via?` (${esc(r.via)})`:""}`}</td><td>${dur(r.m)}</td><td class="num ${i===0?"best":""}">${money(r.p)}</td></tr>`).join("")
+     || `<tr><td colspan="6" class="empty">No flights found for this trip${filter === "all" ? "" : " on " + esc(AL[filter])} at its latest check.</td></tr>`) + "</tbody>";
 }
 
 /* ---------- heatmap ---------- */
 function renderHeat(){
   const byDay = new Map();
   for (const c of checks){
-    const k = c.t.slice(0,10);
+    const k = c.t.slice(0,10), v = checkBest(c);
     if (!byDay.has(k)) byDay.set(k, Array.from({length:24}, () => null));
     const h = c.d.getHours(), cur = byDay.get(k)[h];
-    if (!cur || (c.best != null && (cur.best == null || c.best < cur.best))) byDay.get(k)[h] = c;
+    if (!cur || (v != null && (checkBest(cur) == null || v < checkBest(cur)))) byDay.get(k)[h] = c;
   }
   const days = [...byDay.keys()].sort().reverse().slice(0, 45);
-  const cuts = bins(good.map(c => c.best));
+  const cuts = bins(goodChecks().map(checkBest));
   const lvl = v => { let i = cuts.findIndex(c => v <= c); if (i === -1) i = 4; return 4 - i; };
   const heat = $("#heat");
   heat.style.gridTemplateColumns = `110px repeat(24, minmax(22px,1fr))`;
@@ -368,13 +448,14 @@ function renderHeat(){
     html += `<div class="n">${fmtDay(parseD(k))}</div>`;
     for (const c of byDay.get(k)){
       if (!c){ html += `<div class="c miss" data-tip="No check this hour"></div>`; continue; }
-      if (c.best == null){ html += `<div class="c" style="background:var(--none);outline:1px dashed var(--warn);outline-offset:-2px" data-tip="<b>${esc(fmtT(c.d))}</b><br>Check failed: ${esc(c.err||"")}"></div>`; continue; }
+      const v = checkBest(c);
+      if (v == null){ html += `<div class="c" style="background:var(--none);outline:1px dashed var(--warn);outline-offset:-2px" data-tip="<b>${esc(fmtT(c.d))}</b><br>No prices: ${esc(c.err||"")}"></div>`; continue; }
       const t = trips[c.key];
-      html += `<div class="c" style="background:var(--seq-${lvl(c.best)})" data-tip="<b>${esc(fmtT(c.d))}</b><br>Cheapest: <b>${money(c.best)}</b>${t ? "<br>" + esc(t.label) : ""}<br>${c.n} of ${c.tot} trips priced"></div>`;
+      html += `<div class="c" style="background:var(--seq-${lvl(v)})" data-tip="<b>${esc(fmtT(c.d))}</b><br>Cheapest: <b>${money(v)}</b>${filter === "all" && t ? `<br>${esc(t.label)} on ${esc(AL[c.al])}` : ""}<br>${CODES.map(x => `${esc(AL[x])} ${money(c[x.toLowerCase()])}`).join(" · ")}<br>${c.tot} trips checked"></div>`;
     }
   }
   heat.innerHTML = days.length ? html : `<div class="empty">No checks yet.</div>`;
-  $("#heatleg").innerHTML = cuts.length ? `<span>Cheaper</span>${[4,3,2,1,0].map(i => `<i style="background:var(--seq-${i})"></i>`).join("")}<span>Pricier</span><span style="margin-left:12px"><i class="miss"></i> no check</span><span><i style="background:var(--none);outline:1px dashed var(--warn);outline-offset:-2px"></i> failed</span>` : "";
+  $("#heatleg").innerHTML = cuts.length ? `<span>Cheaper</span>${[4,3,2,1,0].map(i => `<i style="background:var(--seq-${i})"></i>`).join("")}<span>Pricier</span><span style="margin-left:12px"><i class="miss"></i> no check</span><span><i style="background:var(--none);outline:1px dashed var(--warn);outline-offset:-2px"></i> no prices</span>` : "";
 }
 $("#heat").addEventListener("mousemove", e => { const c = e.target.closest("[data-tip]"); if (c) showTip(e, c.dataset.tip); else hideTip(); });
 $("#heat").addEventListener("mouseleave", hideTip);
@@ -393,9 +474,9 @@ function barChart(el, rows, label){
   const every = Math.ceil(rows.length / Math.max(1, Math.floor(iw/40)));
   rows.forEach((r, i) => {
     const x = m.l + i*bw + gapPx/2, y0 = Y(0), y1 = Y(r.v), h = Math.max(1, Math.abs(y1 - y0));
-    const col = r.v === minV ? css("--seq-4") : r.v < 0 ? css("--seq-2") : css("--seq-0");
+    const col = r.v === minV && r.v < -0.5 ? css("--seq-4") : r.v < 0 ? css("--seq-2") : css("--seq-0");
     svg += `<rect x="${x}" y="${Math.min(y0,y1)}" width="${bw-gapPx}" height="${h}" rx="${Math.min(4,(bw-gapPx)/2,h)}" fill="${col}"/>`;
-    svg += `<rect x="${m.l + i*bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent" data-tip="<b>${esc(r.k)}</b><br>${r.v<0?"−":"+"}${money(Math.abs(r.v))} vs that trip's daily average<br>${r.n} checks"/>`;
+    svg += `<rect x="${m.l + i*bw}" y="${m.t}" width="${bw}" height="${ih}" fill="transparent" data-tip="<b>${esc(r.k)}</b><br>${r.v<0?"−":"+"}${money(Math.abs(r.v))} vs that trip's usual<br>${r.n} checks"/>`;
     if (i % every === 0) svg += `<text x="${x + (bw-gapPx)/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="${css("--ink-3")}">${esc(r.k)}</text>`;
     if (r.v === minV && r.v < -0.5) svg += `<text x="${x + (bw-gapPx)/2}" y="${Math.max(y0,y1)+13}" text-anchor="middle" font-size="11" font-weight="600" fill="${css("--ink")}">−$${Math.abs(Math.round(r.v))}</text>`;
   });
@@ -414,36 +495,40 @@ function renderPatterns(){
 /* ---------- check log ---------- */
 let showAll = false;
 function renderLog(){
-  const first = checks[0]?.d, last = checks[checks.length-1]?.d;
+  const first = checks[0]?.d, last = checks[checks.length-1]?.d, good = goodChecks();
   const hours = first ? Math.round((last - first) / 36e5) + 1 : 0;
-  $("#logSub").textContent = first ? `${checks.length} checks since ${fmtT(first)} · ${checks.length - good.length} failed · ${Math.max(0, hours - checks.length)} hours missed` : "No checks yet.";
+  $("#logSub").textContent = first ? `${checks.length} checks since ${fmtT(first)} · ${checks.length - good.length} with no prices · ${Math.max(0, hours - checks.length)} hours missed` : "No checks yet.";
   const rows = [...checks].reverse(), shown = showAll ? rows : rows.slice(0, 48);
-  $("#logTbl").innerHTML = `<thead><tr><th>Checked (Chicago)</th><th class="num">Cheapest</th><th>Trip</th><th class="num">Trips priced</th><th>Status</th></tr></thead><tbody>` +
+  $("#logTbl").innerHTML = `<thead><tr><th>Checked (Chicago)</th><th class="num">Cheapest</th><th>Airline</th><th>Trip</th>${CODES.map(c => `<th class="num">Best ${esc(AL[c])}</th>`).join("")}<th class="num">Trips checked</th><th>Status</th></tr></thead><tbody>` +
     shown.map((c, i) => {
-      const prev = rows[i+1], ch = prev && prev.best != null && c.best != null ? c.best - prev.best : 0;
-      return `<tr><td>${fmtT(c.d)}</td><td class="num best">${money(c.best)}${ch ? ` <span style="font-weight:500;color:${ch<0?"var(--good)":"var(--up)"}">${ch<0?"▼":"▲"}${Math.abs(ch)}</span>` : ""}</td>
-      <td>${c.key && trips[c.key] ? esc(trips[c.key].label) : `<span class="muted">${c.key ? esc(c.key.replace("|"," → ")) : "—"}</span>`}</td><td class="num">${c.n} / ${c.tot}</td>
-      <td>${c.best == null ? `<span class="err">Failed</span>` : c.err ? `<span class="muted">Partial</span>` : "OK"}</td></tr>`;
+      const v = checkBest(c), prev = rows[i+1], pv = prev ? checkBest(prev) : null, ch = pv != null && v != null ? v - pv : 0;
+      const al = filter === "all" ? c.al : filter;
+      return `<tr><td>${fmtT(c.d)}</td><td class="num best">${money(v)}${ch ? ` <span style="font-weight:500;color:${ch<0?"var(--good)":"var(--up)"}">${ch<0?"▼":"▲"}${Math.abs(ch)}</span>` : ""}</td>
+      <td>${v != null && al ? alTag(al) : "—"}</td>
+      <td>${filter === "all" && c.key && trips[c.key] ? esc(trips[c.key].label) : filter === "all" && c.key ? `<span class="muted">${esc(c.key.replace("|"," → "))}</span>` : "—"}</td>
+      ${CODES.map(x => `<td class="num">${money(c[x.toLowerCase()])}</td>`).join("")}
+      <td class="num">${c.tot}</td>
+      <td>${c.best == null ? `<span class="err">No prices</span>` : c.err ? `<span class="muted">Partial</span>` : "OK"}</td></tr>`;
     }).join("") + "</tbody>";
   $("#more").hidden = rows.length <= 48;
   $("#more").textContent = showAll ? "Show fewer" : `Show all ${rows.length} checks`;
 }
 $("#more").onclick = () => { showAll = !showAll; renderLog(); };
 $("#dl").onclick = () => {
-  let out = "checked_at_chicago,trip_out,trip_back,price\n";
-  for (const k of keys) for (const [i,p] of trips[k].hist) out += `${checks[i]?.t ?? ""},${trips[k].out},${trips[k].back},${p}\n`;
+  let out = "checked_at_chicago,airline,trip_out,trip_back,price\n";
+  for (const k of keys) for (const c of CODES) for (const [i,p] of (trips[k].a[c]?.hist || [])) out += `${checks[i]?.t ?? ""},${AL[c]},${trips[k].out},${trips[k].back},${p}\n`;
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([out], {type:"text/csv"}));
   a.download = "iceland-fares.csv"; a.click();
 };
 
 /* ---------- boot ---------- */
-function renderAll(){ renderTop(); renderGrid(); renderRange(); renderChart(); renderFlights(); renderHeat(); renderPatterns(); renderLog(); }
+function renderAll(){ renderFilter(); renderTop(); renderGrid(); renderRange(); renderChart(); renderFlights(); renderHeat(); renderPatterns(); renderLog(); }
 if (!DATA){
   document.querySelector(".wrap").innerHTML = "<h1>No data yet</h1><p>The first check hasn't finished. Come back after the bot runs.</p>";
 } else {
   renderAll();
-  $("#foot").textContent = "Prices from Google Flights for United regular Economy round trips. Confirm in Chase Travel before booking.";
+  $("#foot").textContent = `Prices from Google Flights for ${Object.values(AL).join(" and ")} regular Economy round trips. Confirm in Chase Travel before booking.`;
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { renderChart(); renderPatterns(); }, 150); });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
 }

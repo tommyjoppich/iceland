@@ -3,15 +3,30 @@
 ORIGIN = "ORD"
 DEST = "KEF"                 # Reykjavik-Keflavik
 DEST_NAME = "Reykjavik"
-AIRLINE_CODE = "UA"
-AIRLINE_NAME = "United"
 MAX_STOPS = 1                # nonstop or 1 stop
 
-# Weekdays: 0=Mon 1=Tue 2=Wed 3=Thu 4=Fri 5=Sat 6=Sun
-DEPART_DAYS = [2, 3]         # leave ORD Wednesday or Thursday (any time)
-RETURN_DAYS = [6, 0]         # leave Iceland Sunday or Monday (any time)
+# Airlines to track: code → name as Google Flights shows it.
+# Every price on the website and in emails is labeled with its airline.
+AIRLINES = {
+    "UA": "United",
+    "FI": "Icelandair",
+}
 
-WEEKENDS_AHEAD = 10          # track the next 10 weekends, rolling forward
+# Trips to check each week. Days: Mon Tue Wed Thu Fri Sat Sun.
+#   leave_before = outbound must depart ORD before this hour (24h clock)
+#   land_after   = return must land at ORD at/after this hour (24h clock)
+TRIPS = [
+    {"out": "Wed", "back": "Sun"},
+    {"out": "Wed", "back": "Mon"},
+    {"out": "Thu", "back": "Sun"},
+    {"out": "Thu", "back": "Mon"},
+    # Friday works only if you can come back Monday night:
+    {"out": "Fri", "back": "Mon", "leave_before": 12, "land_after": 18},
+]
+
+TRACK_UNTIL = "2027-05-31"   # track every trip departing from now through this date
+HOURLY_WEEKENDS = 10         # the next 10 weekends are checked every hour...
+FAR_EVERY_HOURS = 3          # ...weekends further out every 3 hours (keeps Google happy)
 
 ADULTS = 1
 SEAT = "economy"
@@ -25,4 +40,4 @@ DELAY_RANGE = (1.0, 2.5)
 # Alerts (GitHub issue → email)
 TARGET_PRICE = None          # e.g. 600 = email when any trip drops to $600 or less
 DEAL_THRESHOLD = 0.15        # email when a trip is 15%+ below its own typical price
-DEAL_MIN_CHECKS = 24         # ...but only once that trip has a day of history
+DEAL_MIN_CHECKS = 24         # ...but only once that trip has enough history

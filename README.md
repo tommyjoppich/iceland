@@ -1,20 +1,25 @@
-# 🇮🇸 United Chicago ⇄ Iceland Fare Tracker
+# 🇮🇸 Chicago ⇄ Iceland Fare Tracker
 
-A free bot that checks United round-trip fares from O'Hare (ORD) to Reykjavik
-(KEF) **every hour** for the **next 10 weekends**, and builds a website showing
-how every trip's price moves.
+A free bot that checks round-trip fares from O'Hare (ORD) to Reykjavik (KEF) on
+**United and Icelandair** for **every weekend from now through May 2027**, and
+builds a website showing how every trip's price moves. Every price is labeled
+with its airline.
 
-**Trips tracked:** each weekend, every combo of
-- **Leave ORD** Wednesday or Thursday (any time)
-- **Return** Sunday or Monday (any time)
+**Trips tracked each week:**
+- Wed→Sun, Wed→Mon, Thu→Sun, Thu→Mon (any time of day)
+- Fri→Mon, only if the Friday flight leaves **before noon** and the Monday flight
+  **lands at ORD at 6 PM or later**
 
-That's 4 trips per weekend × 10 weekends = **40 searches per hour** (~2 minutes).
+**How often:** the next 10 weekends every hour; weekends further out every
+3 hours (keeps the load on Google reasonable; ~50–145 searches per run).
 
-**Search settings:** United only · regular Economy (no Basic, matching Chase
-Travel) · nonstop or 1 stop · 1 adult.
+**Search settings:** regular Economy (no Basic, matching Chase Travel) · nonstop
+or 1 stop · 1 adult.
 
-> United's ORD–KEF nonstop is seasonal. Weekends with no United service show as
-> "No United" and fill in automatically once United schedules flights.
+> United's ORD–KEF nonstop is seasonal (3×/week in winter: leaves ORD Wed/Fri/Sun,
+> returns Mon/Thu/Sat, paused after Jan 3). Icelandair flies the route year-round.
+> Nonstops to Iceland leave ORD in the evening, so Friday-morning trips will
+> usually show "No flights".
 
 ## What you get
 
@@ -84,9 +89,12 @@ cron-job.org starts it.
 ## Changing settings (`config.py`)
 
 - `TARGET_PRICE = 600`: also email when any trip is $600 or less
-- `DEPART_DAYS` / `RETURN_DAYS`: e.g. `[3, 4]` for Thu/Fri departures
+- `TRIPS`: which day combos to check. Remove `leave_before` from the Friday line
+  to allow Friday departures at any time.
+- `AIRLINES`: delete the Icelandair line to go back to United only
+- `TRACK_UNTIL`: last departure date to track
+- `HOURLY_WEEKENDS` / `FAR_EVERY_HOURS`: how often near vs. far weekends are checked
 - `MAX_STOPS = 0`: nonstop only
-- `WEEKENDS_AHEAD`: how far out to look (each weekend adds 4 searches/hour)
 - `DEAL_THRESHOLD`: `0.15` = email when 15% below typical
 
 ## Good to know
@@ -101,7 +109,8 @@ cron-job.org starts it.
 
 | File | What it does |
 |---|---|
-| `tracker.py` | Searches all 40 trips, saves to `data/prices-YYYY-MM.csv` |
+| `tracker.py` | Searches every trip, saves to `data/prices-YYYY-MM-DD.csv` |
+| `safe_parse.py` | Skips incomplete Google listings instead of crashing |
 | `analyze.py` | Builds `REPORT.md`, the website in `docs/`, and alerts |
 | `dashboard_template.html` | Website design (data is filled in each run) |
 | `config.py` | Trip settings |
