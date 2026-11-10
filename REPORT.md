@@ -1,7 +1,7 @@
 # 🇮🇸 United Chicago ⇄ Reykjavik tracker
 
 Leave Wed or Thu, return Sun or Mon (any time) · up to 1 stop · United only · regular Economy · next 10 weekends
-_Updated 2026-11-10 11:26 Chicago time · 1 checks so far_
+_Updated 2026-11-10 11:46 Chicago time · 2 checks so far_
 
 **GOOD PRICE** — Within 3% of the all-time low ($477).
 
