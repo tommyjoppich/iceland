@@ -116,7 +116,7 @@ def main():
              "label": trip_label(r.depart_date, r.return_date),
              "now": None, "stops": None, "flight": None, "nonstop": None,
              "typical": None, "low": None, "high": None, "vs": None, "n": 0, "hist": [],
-             "status": r.status}
+             "status": r.status, "err": (str(r.error)[:120] if r.status == "error" and pd.notna(r.error) else None)}
         if h is not None and not h.empty:
             t.update(typical=float(h["price"].median()), low=num(h["price"].min()),
                      high=num(h["price"].max()), n=int(h["run_id"].nunique()),

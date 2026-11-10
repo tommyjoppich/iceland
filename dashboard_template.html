@@ -247,7 +247,7 @@ function renderGrid(){
     for (const c of C){
       const k = keys.find(k => trips[k].w === w && trips[k].c === c), t = k && trips[k];
       if (!t){ html += `<div class="x">—</div>`; continue; }
-      if (t.now == null){ html += `<div class="x" title="${esc(t.label)}">${t.status === "none" ? "No United" : "Didn&#39;t load"}</div>`; continue; }
+      if (t.now == null){ html += `<div class="x" data-tip="<b>${esc(t.label)}</b><br>${t.status === "none" ? "Google shows no United flights for these dates (with ≤1 stop)." : "Search failed: " + esc(t.err || "unknown error")}">${t.status === "none" ? "No United" : "Didn&#39;t load"}</div>`; continue; }
       const L = lvl(t.now), ink = L >= 3 ? css("--seq-ink") : css("--ink");
       const vs = t.vs != null && t.n >= 6 ? `<small>${pctTxt(t.vs)} vs usual</small>` : `<small>${t.stops === 0 ? "nonstop" : (t.stops||0) + " stop"}</small>`;
       html += `<button class="${k===sel?"sel":""}" data-k="${esc(k)}" style="background:var(--seq-${L});color:${ink}" aria-label="${esc(t.label)}: ${money(t.now)}"

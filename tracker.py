@@ -17,6 +17,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import config
+import safe_parse  # noqa: F401  (makes the flight library skip broken listings)
+from fast_flights.exceptions import FlightsNotFound
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "data"
@@ -70,9 +72,14 @@ def fetch(out: date, back: date):
     q = build_query(out, back)
     try:
         return get_flights(q)
+    except FlightsNotFound:
+        return []                             # Google: no flights for these dates
     except Exception:
         time.sleep(8)                         # one retry after a short pause
-        return get_flights(q)
+        try:
+            return get_flights(q)
+        except FlightsNotFound:
+            return []
 
 
 def united_options(results) -> list[dict]:
@@ -134,14 +141,15 @@ def run(fetcher=fetch, now: datetime | None = None, sleep=time.sleep) -> int:
                            price="", nonstop_price="", stops="", flight="", num_options=0,
                            error=str(e)[:160])
             w.writerow(row)
-            print(f"{combo} {out:%b %d}–{back:%b %d}: {row['status']} {row['price']}", flush=True)
+            print(f"{combo} {out:%b %d}–{back:%b %d}: {row['status']} {row['price'] or row['error']}", flush=True)
             if streak >= GIVE_UP_AFTER:
                 print("Many failures in a row — Google is probably blocking; stopping early.", file=sys.stderr)
                 break
             sleep(random.uniform(*config.DELAY_RANGE))
 
     LATEST_OPTIONS.write_text(json.dumps({"run_id": run_id, "trips": latest}, separators=(",", ":")))
-    print(f"Done: {ok} of {len(trips)} trips priced")
+    print(f"Done: {ok} of {len(trips)} trips priced "
+          f"({safe_parse.skipped} incomplete Google listings skipped)")
     return ok
 
 
