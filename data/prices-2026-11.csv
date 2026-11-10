@@ -1,0 +1,41 @@
+run_id,checked_at_local,local_hour,local_weekday,weekend,combo,depart_date,return_date,status,price,nonstop_price,stops,flight,num_options,error
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-11,Wed→Sun,2026-11-11,2026-11-15,error,,,,,0,no flights found; received error
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-11,Wed→Mon,2026-11-11,2026-11-16,ok,2106,2106,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-11,Thu→Sun,2026-11-12,2026-11-15,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-11,Thu→Mon,2026-11-12,2026-11-16,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-18,Wed→Sun,2026-11-18,2026-11-22,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-18,Wed→Mon,2026-11-18,2026-11-23,ok,697,697,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-18,Thu→Sun,2026-11-19,2026-11-22,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-18,Thu→Mon,2026-11-19,2026-11-23,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-25,Wed→Sun,2026-11-25,2026-11-29,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-25,Wed→Mon,2026-11-25,2026-11-30,ok,1626,1626,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-25,Thu→Sun,2026-11-26,2026-11-29,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-11-25,Thu→Mon,2026-11-26,2026-11-30,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-02,Wed→Sun,2026-12-02,2026-12-06,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-02,Wed→Mon,2026-12-02,2026-12-07,ok,477,477,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-02,Thu→Sun,2026-12-03,2026-12-06,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-02,Thu→Mon,2026-12-03,2026-12-07,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-09,Wed→Sun,2026-12-09,2026-12-13,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-09,Wed→Mon,2026-12-09,2026-12-14,ok,477,477,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-09,Thu→Sun,2026-12-10,2026-12-13,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-09,Thu→Mon,2026-12-10,2026-12-14,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-16,Wed→Sun,2026-12-16,2026-12-20,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-16,Wed→Mon,2026-12-16,2026-12-21,ok,888,888,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-16,Thu→Sun,2026-12-17,2026-12-20,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-16,Thu→Mon,2026-12-17,2026-12-21,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-23,Wed→Sun,2026-12-23,2026-12-27,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-23,Wed→Mon,2026-12-23,2026-12-28,ok,1066,1066,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-23,Thu→Sun,2026-12-24,2026-12-27,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-23,Thu→Mon,2026-12-24,2026-12-28,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-30,Wed→Sun,2026-12-30,2027-01-03,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-30,Wed→Mon,2026-12-30,2027-01-04,ok,1466,1466,0,21:45→10:00,1,
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-30,Thu→Sun,2026-12-31,2027-01-03,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2026-12-30,Thu→Mon,2026-12-31,2027-01-04,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-06,Wed→Sun,2027-01-06,2027-01-10,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-06,Wed→Mon,2027-01-06,2027-01-11,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-06,Thu→Sun,2027-01-07,2027-01-10,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-06,Thu→Mon,2027-01-07,2027-01-11,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-13,Wed→Sun,2027-01-13,2027-01-17,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-13,Wed→Mon,2027-01-13,2027-01-18,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-13,Thu→Sun,2027-01-14,2027-01-17,error,,,,,0,'NoneType' object is not subscriptable
+2026-11-10T17:26Z,2026-11-10 11:26,11,Tuesday,2027-01-13,Thu→Mon,2027-01-14,2027-01-18,error,,,,,0,'NoneType' object is not subscriptable
