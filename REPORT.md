@@ -1,9 +1,9 @@
 # 🇮🇸 Chicago ⇄ Reykjavik fare tracker
 
 United & Icelandair · regular Economy · Wed→Sun, Wed→Mon, Thu→Sun, Thu→Mon, Fri→Wed (leave after 6 PM) · up to 1 stop · through May 2027
-_Updated 2026-11-17 15:37 Chicago time · 33 checks so far_
+_Updated 2026-11-17 16:37 Chicago time · 34 checks so far_
 
-**WAIT** — 64% of past checks had a cheaper trip; the low is $477.
+**WAIT** — 62% of past checks had a cheaper trip; the low is $477.
 
 | | |
 |---|---|
@@ -15,16 +15,16 @@ _Updated 2026-11-17 15:37 Chicago time · 33 checks so far_
 
 | Weekend | Wed→Sun | Wed→Mon | Thu→Sun | Thu→Mon | Fri→Wed |
 |---|---|---|---|---|---|
-| Nov 18 | $1,339 Icelandair | — | $1,544 Icelandair | — | — |
-| Nov 25 | — | — | — | — | — |
-| Dec 2 | — | $529 United | $1,259 Icelandair | — | $1,063 United |
-| Dec 9 | $966 Icelandair | — | $966 Icelandair | $869 Icelandair | — |
-| Dec 16 | $1,014 Icelandair | — | — | — | — |
-| Dec 23 | — | $831 Icelandair | — | — | $1,326 Icelandair |
-| Dec 30 | — | — | — | — | — |
-| Jan 6 | $726 Icelandair | — | — | — | $662 Icelandair |
-| Jan 13 | — | — | — | — | — |
-| Jan 20 | — | — | — | $546 Icelandair | $662 Icelandair |
+| Nov 18 | — | $1,256 Icelandair | $1,544 Icelandair | — | — |
+| Nov 25 | — | — | — | $1,481 Icelandair | $1,019 Icelandair |
+| Dec 2 | $1,259 Icelandair | $529 United | $1,259 Icelandair | $1,161 Icelandair | — |
+| Dec 9 | — | — | $966 Icelandair | — | $904 Icelandair |
+| Dec 16 | $1,014 Icelandair | $946 United | $1,386 Icelandair | $1,339 Icelandair | $1,316 Icelandair |
+| Dec 23 | $831 Icelandair | $831 Icelandair | $816 Icelandair | — | $1,326 Icelandair |
+| Dec 30 | — | — | — | $1,974 Icelandair | $1,061 Icelandair |
+| Jan 6 | $726 Icelandair | $726 Icelandair | $726 Icelandair | $726 Icelandair | $662 Icelandair |
+| Jan 13 | — | — | — | $711 Icelandair | $784 Icelandair |
+| Jan 20 | — | — | $546 Icelandair | $546 Icelandair | — |
 | Jan 27 | — | — | — | — | — |
 | Feb 3 | — | — | — | — | $662 Icelandair |
 | Feb 10 | — | — | — | — | $659 Icelandair |
