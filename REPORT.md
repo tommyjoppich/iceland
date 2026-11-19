@@ -1,9 +1,9 @@
 # 🇮🇸 Chicago ⇄ Reykjavik fare tracker
 
 United & Icelandair · regular Economy · Wed→Sun, Wed→Mon, Thu→Sun, Thu→Mon, Fri→Wed (leave after 6 PM) · up to 1 stop · through May 2027
-_Updated 2026-11-19 03:37 Chicago time · 69 checks so far_
+_Updated 2026-11-19 04:37 Chicago time · 70 checks so far_
 
-**DEAL** — 1 fare is 15%+ below usual — best: Fri Nov 27 – Wed Dec 2 on Icelandair at $756.
+**DEAL** — 1 fare is 15%+ below usual — best: Thu Dec 31 – Mon Jan 4 on Icelandair at $1,354.
 
 | | |
 |---|---|
@@ -16,15 +16,15 @@ _Updated 2026-11-19 03:37 Chicago time · 69 checks so far_
 | Weekend | Wed→Sun | Wed→Mon | Thu→Sun | Thu→Mon | Fri→Wed |
 |---|---|---|---|---|---|
 | Nov 18 | — | — | — | — | — |
-| Nov 25 | — | — | — | — | $756 Icelandair |
-| Dec 2 | — | — | — | — | — |
-| Dec 9 | — | $527 United | — | — | — |
+| Nov 25 | — | — | — | — | — |
+| Dec 2 | $1,259 Icelandair | — | — | — | — |
+| Dec 9 | — | $527 United | — | $869 Icelandair | — |
 | Dec 16 | $1,014 Icelandair | — | — | — | — |
-| Dec 23 | $851 Icelandair | $851 Icelandair | $816 Icelandair | $816 Icelandair | — |
-| Dec 30 | — | — | — | — | $1,052 Icelandair |
-| Jan 6 | — | — | — | — | — |
+| Dec 23 | $851 Icelandair | $851 Icelandair | $816 Icelandair | — | — |
+| Dec 30 | — | $1,465 United | — | $1,354 Icelandair | — |
+| Jan 6 | — | — | — | $726 Icelandair | — |
 | Jan 13 | — | — | — | — | — |
-| Jan 20 | — | — | $546 Icelandair | — | — |
+| Jan 20 | — | — | — | $546 Icelandair | $662 Icelandair |
 | Jan 27 | — | — | — | — | $662 Icelandair |
 | Feb 3 | — | — | — | — | — |
 | Feb 10 | — | — | — | — | — |
@@ -46,6 +46,6 @@ _Updated 2026-11-19 03:37 Chicago time · 69 checks so far_
 
 ## 🔥 Deals
 
-- **$756 on Icelandair** — Fri Nov 27 – Wed Dec 2 (26% below its typical $1,019)
+- **$1,354 on Icelandair** — Thu Dec 31 – Mon Jan 4 (31% below its typical $1,974)
 
 **Website:** see README → "Turn on the website" for the interactive dashboard.
