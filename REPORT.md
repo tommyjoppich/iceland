@@ -1,7 +1,7 @@
 # 🇮🇸 Chicago ⇄ Reykjavik fare tracker
 
 United & Icelandair · regular Economy · Wed→Sun, Wed→Mon, Thu→Sun, Thu→Mon, Fri→Wed (leave after 6 PM) · up to 1 stop · through May 2027
-_Updated 2026-11-18 21:37 Chicago time · 63 checks so far_
+_Updated 2026-11-18 22:37 Chicago time · 64 checks so far_
 
 **DEAL** — 1 fare is 15%+ below usual — best: Wed Dec 30 – Mon Jan 4 on Icelandair at $1,474.
 
@@ -15,16 +15,16 @@ _Updated 2026-11-18 21:37 Chicago time · 63 checks so far_
 
 | Weekend | Wed→Sun | Wed→Mon | Thu→Sun | Thu→Mon | Fri→Wed |
 |---|---|---|---|---|---|
-| Nov 18 | — | — | $1,766 Icelandair | $1,766 Icelandair | — |
-| Nov 25 | — | $1,159 United | — | $1,509 Icelandair | — |
-| Dec 2 | $1,259 Icelandair | $529 United | $1,339 Icelandair | $1,241 Icelandair | $1,061 United |
-| Dec 9 | $966 Icelandair | $527 United | $966 Icelandair | $869 Icelandair | — |
-| Dec 16 | $1,014 Icelandair | $886 United | $1,386 Icelandair | $1,339 Icelandair | $1,316 Icelandair |
-| Dec 23 | $851 Icelandair | $851 Icelandair | $816 Icelandair | $816 Icelandair | $1,326 Icelandair |
-| Dec 30 | — | $1,465 United | — | — | $1,061 Icelandair |
-| Jan 6 | $726 Icelandair | $726 Icelandair | $726 Icelandair | $726 Icelandair | — |
+| Nov 18 | — | — | $1,544 Icelandair | $1,544 Icelandair | — |
+| Nov 25 | — | — | — | $1,509 Icelandair | — |
+| Dec 2 | $1,259 Icelandair | — | $1,339 Icelandair | — | — |
+| Dec 9 | $966 Icelandair | $527 United | — | — | — |
+| Dec 16 | — | $886 United | — | $1,339 Icelandair | $1,316 Icelandair |
+| Dec 23 | — | — | — | — | — |
+| Dec 30 | — | $1,465 United | — | — | — |
+| Jan 6 | — | — | — | — | — |
 | Jan 13 | — | — | — | $711 Icelandair | $784 Icelandair |
-| Jan 20 | — | — | $546 Icelandair | $546 Icelandair | $662 Icelandair |
+| Jan 20 | — | — | — | — | $662 Icelandair |
 | Jan 27 | — | — | $546 Icelandair | $546 Icelandair | $662 Icelandair |
 | Feb 3 | — | — | $609 Icelandair | $609 Icelandair | $662 Icelandair |
 | Feb 10 | — | — | $629 Icelandair | $629 Icelandair | $659 Icelandair |
