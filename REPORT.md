@@ -1,7 +1,7 @@
 # 🇮🇸 Chicago ⇄ Reykjavik fare tracker
 
 United & Icelandair · regular Economy · Wed→Sun, Wed→Mon, Thu→Sun, Thu→Mon, Fri→Wed (leave after 6 PM) · up to 1 stop · through May 2027
-_Updated 2026-11-21 10:37 Chicago time · 124 checks so far_
+_Updated 2026-11-21 11:37 Chicago time · 125 checks so far_
 
 **BUY** — Lowest price the bot has ever seen: $429 (Thu Jan 14 – Sun Jan 17 on Icelandair).
 
@@ -16,15 +16,15 @@ _Updated 2026-11-21 10:37 Chicago time · 124 checks so far_
 | Weekend | Wed→Sun | Wed→Mon | Thu→Sun | Thu→Mon | Fri→Wed |
 |---|---|---|---|---|---|
 | Nov 25 | $2,134 United | $995 United | $1,891 Icelandair | $1,509 Icelandair | $756 Icelandair |
-| Dec 2 | $1,339 Icelandair | $527 United | $1,259 Icelandair | $1,161 Icelandair | $1,061 United |
+| Dec 2 | $1,339 Icelandair | $527 United | — | $1,161 Icelandair | $1,061 United |
 | Dec 9 | $966 Icelandair | $527 United | $966 Icelandair | $966 Icelandair | $1,264 United |
-| Dec 16 | $1,306 Icelandair | $856 United | $1,591 Icelandair | $1,544 Icelandair | $1,276 Icelandair |
+| Dec 16 | $1,306 Icelandair | $856 United | — | — | $1,276 Icelandair |
 | Dec 23 | $879 Icelandair | $879 Icelandair | $816 Icelandair | $816 Icelandair | $1,326 Icelandair |
-| Dec 30 | — | $1,465 United | — | $1,354 Icelandair | $825 Icelandair |
-| Jan 6 | $741 Icelandair | $756 Icelandair | $741 Icelandair | $756 Icelandair | $823 Icelandair |
+| Dec 30 | — | — | — | $1,354 Icelandair | $825 Icelandair |
+| Jan 6 | $741 Icelandair | $756 Icelandair | — | $756 Icelandair | $823 Icelandair |
 | Jan 13 | — | — | $429 Icelandair | $429 Icelandair | $632 Icelandair |
-| Jan 20 | — | — | $429 Icelandair | $429 Icelandair | $632 Icelandair |
-| Jan 27 | — | — | $429 Icelandair | $429 Icelandair | $632 Icelandair |
+| Jan 20 | — | — | — | $429 Icelandair | $632 Icelandair |
+| Jan 27 | — | — | — | $429 Icelandair | $632 Icelandair |
 | Feb 3 | — | — | $429 Icelandair | — | $632 Icelandair |
 | Feb 10 | — | — | $570 Icelandair | $570 Icelandair | $429 Icelandair |
 | Feb 17 | $429 Icelandair | $429 Icelandair | $429 Icelandair | $429 Icelandair | $429 Icelandair |
@@ -62,7 +62,6 @@ _Updated 2026-11-21 10:37 Chicago time · 124 checks so far_
 - **$429 on Icelandair** — Thu Feb 25 – Mon Mar 1 (31% below its typical $619)
 - **$429 on Icelandair** — Thu Feb 4 – Sun Feb 7 (30% below its typical $609)
 - **$825 on Icelandair** — Fri Jan 1 – Wed Jan 6 (22% below its typical $1,061)
-- **$429 on Icelandair** — Thu Jan 21 – Sun Jan 24 (21% below its typical $546)
 - **$429 on Icelandair** — Thu Jan 21 – Mon Jan 25 (21% below its typical $546)
 - **$429 on Icelandair** — Fri Feb 12 – Wed Feb 17 (21% below its typical $546)
 - **$429 on Icelandair** — Wed Feb 17 – Sun Feb 21 (21% below its typical $546)
