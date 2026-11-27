@@ -1,13 +1,13 @@
 # 🇮🇸 Chicago ⇄ Reykjavik fare tracker
 
 United & Icelandair · regular Economy · Wed→Sun, Wed→Mon, Thu→Sun, Thu→Mon, Fri→Wed (leave after 6 PM) · up to 1 stop · through May 2027
-_Updated 2026-11-27 10:37 Chicago time · 268 checks so far_
+_Updated 2026-11-27 11:37 Chicago time · 269 checks so far_
 
-**BUY** — Lowest price the bot has ever seen: $429 (Thu Jan 21 – Sun Jan 24 on Icelandair).
+**BUY** — Lowest price the bot has ever seen: $429 (Thu Jan 21 – Mon Jan 25 on Icelandair).
 
 | | |
 |---|---|
-| **Cheapest trip now** | **$429** · Thu Jan 21 – Sun Jan 24 on Icelandair |
+| **Cheapest trip now** | **$429** · Thu Jan 21 – Mon Jan 25 on Icelandair |
 | All-time low | $429 on 2026-11-19 12:37 |
 | Typical cheapest | $429 |
 
@@ -15,15 +15,15 @@ _Updated 2026-11-27 10:37 Chicago time · 268 checks so far_
 
 | Weekend | Wed→Sun | Wed→Mon | Thu→Sun | Thu→Mon | Fri→Wed |
 |---|---|---|---|---|---|
-| Dec 2 | $1,511 Icelandair | $527 United | $1,511 Icelandair | $1,339 Icelandair | — |
-| Dec 9 | — | $527 United | $1,364 Icelandair | — | $1,397 United |
-| Dec 16 | $1,431 Icelandair | $856 United | — | $1,716 Icelandair | — |
-| Dec 23 | — | — | — | — | $1,416 Icelandair |
-| Dec 30 | — | — | — | — | — |
-| Jan 6 | — | $834 Icelandair | $771 Icelandair | $819 Icelandair | $798 Icelandair |
-| Jan 13 | — | — | $585 Icelandair | $791 Icelandair | $632 Icelandair |
-| Jan 20 | — | — | $429 Icelandair | — | $632 Icelandair |
-| Jan 27 | — | — | $429 Icelandair | $429 Icelandair | $632 Icelandair |
+| Dec 2 | — | $527 United | — | — | $1,059 United |
+| Dec 9 | $1,364 Icelandair | $527 United | $1,364 Icelandair | — | $1,397 United |
+| Dec 16 | — | — | — | $1,716 Icelandair | — |
+| Dec 23 | $851 Icelandair | $851 Icelandair | $816 Icelandair | $816 Icelandair | — |
+| Dec 30 | — | $1,435 United | — | — | $1,033 Icelandair |
+| Jan 6 | $786 Icelandair | $834 Icelandair | $771 Icelandair | — | — |
+| Jan 13 | — | — | $585 Icelandair | — | $632 Icelandair |
+| Jan 20 | — | — | — | $429 Icelandair | $632 Icelandair |
+| Jan 27 | — | — | $429 Icelandair | $429 Icelandair | — |
 | Feb 3 | — | — | $570 Icelandair | $429 Icelandair | $632 Icelandair |
 | Feb 10 | — | — | $570 Icelandair | $570 Icelandair | $429 Icelandair |
 | Feb 17 | $429 Icelandair | — | $429 Icelandair | — | $429 Icelandair |
