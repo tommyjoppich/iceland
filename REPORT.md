@@ -1,7 +1,7 @@
 # 🇮🇸 Chicago ⇄ Reykjavik fare tracker
 
 United & Icelandair · regular Economy · Wed→Sun, Wed→Mon, Thu→Sun, Thu→Mon, Fri→Wed (leave after 6 PM) · up to 1 stop · through May 2027
-_Updated 2026-11-28 00:37 Chicago time · 282 checks so far_
+_Updated 2026-11-28 01:37 Chicago time · 283 checks so far_
 
 **BUY** — Lowest price the bot has ever seen: $429 (Thu Apr 22 – Mon Apr 26 on Icelandair).
 
